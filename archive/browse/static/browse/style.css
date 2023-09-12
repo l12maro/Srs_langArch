@@ -1,0 +1,368 @@
+/* Main Structure */
+
+body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f1f1f1;
+    }
+	
+	/* Nav-bar */
+	
+nav {
+	  margin: 0;
+	  padding: 10px;
+	  font-size: 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+	}
+
+	.navbar-nav {
+	  display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+	}
+	
+	.navbar-nav {
+	  display: flex;
+      justify-content: space-between;
+      align-items: center;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+	}
+	
+	.navbar-nav li {
+      position: relative;
+      padding: 0 10px 0 10px;
+    }
+	.navbar-nav li {
+      position: relative;
+      padding: 0 10px 0 10px;
+    }
+	
+	.navbar-nav li:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -5px;
+      transform: translateY(-50%);
+      height: 16px;
+      width: 1px;
+      background-color: white;
+    }
+	.navbar-nav li:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -5px;
+      transform: translateY(-50%);
+      height: 16px;
+      width: 1px;
+      background-color: white;
+    }
+	
+	.navbar-nav .nav-link {
+	  font-family: Arial, sans-serif;
+	  color: black;
+	 }
+	 
+	 .navbar-nav .nav-link.active {
+      font-weight: bold;
+    }
+	
+	#sidebar section {
+		margin-top: 10px;
+		border-bottom: solid 2px #81858c;
+		background-color: #FFF;
+	}
+	
+	section p {
+		font-weight: bold;
+		text-align: center;
+	}
+	
+	* {
+    box-sizing: border-box;
+    line-height: 1.5em;
+    z-index: 1;
+}
+	
+	/* structural elements */
+	
+	/* Set wrapper and content to occupy the full height */
+body, .wrapper, #content {
+	  height: 100%;
+	  position: relative;
+	}
+
+	.wrapper {
+	  display: flex;
+	}
+	/* Styling for the main content area */
+	#content {
+	  flex-grow: 1;
+	  padding: 20px;
+	}
+
+	/* Media query for responsiveness (optional) */
+	@media (max-width: 768px) {
+	  .wrapper {
+		flex-direction: column;
+	  }
+		nav {
+		width: 100%;
+	  }
+	}
+
+	/* Styling for the sidebar */
+	#sidebar {
+	  height: 100%;
+	  width: 250px;
+	  padding-top: 20px;
+	}
+
+	#sidebar ul {
+	  padding-left: 20px;
+	}
+
+	#sidebar li {
+	  margin-bottom: 10px;
+	}
+
+	#sidebar a {
+	  color: #343a40;
+	}
+	
+	.dropdown-toggle {
+		white-space: nowrap;
+	}
+	
+	.dropdown-toggle::after {
+		display: block;
+		position: absolute;
+		top: 50%;
+		right: 0;
+		-webkit-transform: translateY(-50%);
+		-ms-transform: translateY(-50%);
+		transform: translateY(-50%);
+	}
+	
+	.dropdown-toggle::after {
+		display: inline-block;
+		margin-left: 0.255em;
+		vertical-align: 0.255em;
+		content: "";
+		border-top: 0.3em solid;
+		border-right: 0.3em solid transparent;
+		border-bottom: 0;
+		border-left: 0.3em solid transparent;
+	}
+	
+	*, *::before, *::after {
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+
+	
+    .container {
+	  display: flex;
+	  justify-content: center;
+	  position: absolute;
+    }
+	
+	/* Dynamic side-by-side containers */
+
+	.div1 {
+	  position: left;
+	  width: 47%;
+	  height: 200px;
+	}
+	
+	.div2 {
+	  position: right;
+	  width: 47%;
+	  height: 200px;
+	}
+	
+	.space {
+	  width: 5%;
+	}
+
+	@media (max-width: 768px) {
+	  .div1, .div2, .space {
+		width: 100%;
+	  }
+	}
+	  
+	/* list of objects */
+	
+	#loaded_av {
+	margin: 0;
+    padding: 10px;
+    border: 0;
+    vertical-align: baseline;
+	position: absolute;
+	}
+	
+	.av-item {
+    padding-top: 10px;
+    margin-bottom: 10px;
+	width:100%; 
+	}
+
+	.border-solid {
+		padding-top: 10px;
+		border: 1px solid black;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		padding-left: 20px;
+		padding-right: 10px;	
+		width:100%;
+	}
+	
+	.translation-unit-header {
+		padding-bottom: 10px;
+		margin-bottom: 10px;
+		border-bottom: 1px dotted black;
+		margin-left: -20px;
+		margin-right: -10px;
+		padding-right: 10px;
+		padding-left: 20px;
+		font-style: strong;
+		font-size: 16pt;	}
+	
+	
+	.word {
+		float: left;
+	}
+	
+	.word dd, .word dt, .word dl, .sentence {
+		text-align: left;
+		padding: 10px;
+		margin: 0px;
+		white-space: nowrap;
+	}
+	
+	.dd {
+		display: block;
+		margin-inline-start: 40px;
+	}
+	
+	audio {
+	  width: 100%;
+	  position: absolute; 
+	}
+	
+	
+	a:link {
+		color: black;
+	}
+	
+	ul {
+		list-style-type: none
+	}
+	
+	img {
+		vertical-align: middle;
+		border: 0;
+	}
+	* {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+	user agent stylesheet
+	img {
+		overflow-clip-margin: content-box;
+		overflow: clip;
+	}
+	
+	/* textual elements */
+	
+	h2, h3, h4 {
+      text-align: center;
+    }
+	
+	.browse {
+		font-size: 16pt;
+		
+	}
+	
+	.container-fluid p {
+		text-align: justify;
+		padding: 10px;
+		margin: 10px;
+	}
+	
+	button[type=submit] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+	
+	.search-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      margin: 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+	
+	input[type=text], input[type=password]{
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+	
+	.advanced-options {
+      display: none;
+    }
+	
+	.advanced-search-button {
+	  background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: blue;
+      text-decoration: underline;
+	}
+	  
+	.form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    textarea {
+      height: 100px;
+    }
+

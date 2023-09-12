@@ -1,0 +1,76 @@
+{% extends "browse/base.html" %}
+
+
+<div class="wrapper">
+    <nav id="sidebar">
+		<div class="sidebar-header">
+		  <h3>Filter by</h3>
+		</div>
+		<ul class="list-unstyled components">
+		  <li>
+			<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Session</a>
+			<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+				<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Session 1</a></li>
+				<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Session 2</a></li>
+				<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Session 3</a></li>
+			</ul>
+		  </li>
+		  <li>
+			<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Speaker</a>
+		  <ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+			<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Speaker 1</a></li>
+			<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Speaker 2</a></li>
+			<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Speaker 3</a></li>
+			</ul>
+		  </li>
+		  <li>
+			<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Participant</a>
+		  <ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+			<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Participant 1</a></li>
+			<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Participant 2</a></li>
+			<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Participant 3</a></li>
+		</ul>
+		  </li>
+		</ul>
+    </nav>
+
+<!-- Display whole collection -->
+    {block content}
+	<div>
+        {% block title %}Name of Collection{% endblock %}
+		<p>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		</p>
+	</div>
+		<!-- Populate the search results dynamically -->
+	<div>
+		</h3>Material</h3>
+			<div id="loaded_av">
+				<div class="border-solid" id="av0">
+				<h3> Name of file </h3>
+				<p> (spoken by Speaker1) </p>
+				<span class="strong"> Name of collection: Session </span><div class="av-item">
+				<audio controls="" preload="none"><source src=""></audio>
+				<a href="textpage.html">See transcription</a>
+				</div>
+				</div>
+				<div class="border-solid" id="av1">
+				<h3> Name of file 2</h3>
+				<p> (spoken by Speaker2) </p>
+				<span class="strong"> Name of collection:  </span><div class="av-item">
+				<audio controls="" preload="none"><source src=""></audio>
+				<a href="textpage.html">See transcription</a>
+				</div>
+				</div>
+	</div>
+	{% endblock %}
+</div>
+</body>
+
+	<script>
+		function toggleAdvancedOptions() {
+		  var advancedOptions = document.getElementById('advanced-options');
+		  advancedOptions.style.display = (advancedOptions.style.display === 'none') ? 'block' : 'none';
+		}
+	</script>
+</html>

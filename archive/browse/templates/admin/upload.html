@@ -1,0 +1,12 @@
+
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="submit-row">
+    <form enctype="multipart/form-data" action="{% url 'admin:upload-xml' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload XML</button>
+    </form>
+</div>
+{% endblock %}
