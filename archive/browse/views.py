@@ -13,7 +13,7 @@ def coll(request, collection):
     context = {
         "session_list": session_list,
     }
-    return render(request, "browse/collection.html", context)
+    return render(request, "browse/base_collection.html", context)
 
 def ses(request, collection, session):
     elements = MetaText.objects.filter(collection__name=collection)
@@ -22,7 +22,7 @@ def ses(request, collection, session):
     context = {
         "file_list": file_list,
     }
-    return render(request, "browse/collection.html", context)
+    return render(request, "browse/base_collection.html", context)
 
 
 
@@ -33,3 +33,6 @@ def detail(request, collection, session, filetype):
     #TODO: Which details should be 
     element = elements.text_id
     return HttpResponse("You're looking at text %s." % element)
+
+def about(request):
+    return render(request, "browse/base_home.html")

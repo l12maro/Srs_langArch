@@ -1,0 +1,38 @@
+{% extends "browse/base.html" %}
+{% block title %} About Tsuut'ina Language Archive {% endblock %}
+{% block content %}
+    <!-- Information about the collection -->
+    <div class="container-fluid">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec pulvinar leo. Aenean sodales a ipsum a fringilla. Quisque vel dignissim urna. Nunc vel nunc felis. Fusce feugiat elementum arcu, vel ullamcorper ante vehicula ut. Phasellus id nunc et nisl ornare volutpat. Donec pellentesque semper urna et euismod. Nunc vitae iaculis odio. Duis a diam fermentum, consequat neque accumsan, facilisis mi. Donec sit amet nunc risus. Donec malesuada ut mi in sagittis. Duis malesuada id sapien vel pulvinar. Quisque lorem felis, fringilla in tellus et, dignissim semper odio. Proin convallis, ligula in viverra suscipit, risus lorem cursus odio, id suscipit sem arcu et erat. Nullam sed augue molestie, commodo purus nec, vehicula urna. Nullam ultricies quam eget dapibus ullamcorper.</p>
+    </div>
+	<!-- Contact information --> 
+	<div class="container">
+		<div class="div1">
+				<h2>Contact Us</h2>
+				<form action="process-contact.php" method="POST">
+				  <div class="form-group">
+					<label for="name">Name:</label>
+					<input type="text" id="name" name="name" required>
+				  </div>
+				  <div class="form-group">
+					<label for="email">Email:</label>
+					<input type="email" id="email" name="email" required>
+				  </div>
+				  <div class="form-group">
+					<label for="message">Message:</label>
+					<textarea id="message" name="message" required></textarea>
+				  </div>
+				  <button type="submit">Submit</button>
+				</form>
+		</div>
+		<div class="space"></div>
+			<!-- About Tsuut'ina Gunaha Institute -->
+		<div class="div2">
+			<h2>About Tsuut'ina Gunaha Institute</h2>
+			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec pulvinar leo. Aenean sodales a ipsum a fringilla. Quisque vel dignissim urna. Nunc vel nunc felis. Fusce feugiat elementum arcu, vel ullamcorper ante vehicula ut. Phasellus id nunc et nisl ornare volutpat. Donec pellentesque semper urna et euismod. Nunc vitae iaculis odio. Duis a diam fermentum, consequat neque accumsan, facilisis mi. Donec sit amet nunc risus. Donec malesuada ut mi in sagittis. Duis malesuada id sapien vel pulvinar. Quisque lorem felis, fringilla in tellus et, dignissim semper odio. Proin convallis, ligula in viverra suscipit, risus lorem cursus odio, id suscipit sem arcu et erat. Nullam sed augue molestie, commodo purus nec, vehicula urna. Nullam ultricies quam eget dapibus ullamcorper.</p>
+		</div>
+	</div>
+    {% endblock %}
+	
+	<!-- How to cite -->
+
