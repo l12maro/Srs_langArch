@@ -94,19 +94,22 @@ nav {
 	/* structural elements */
 	
 	/* Set wrapper and content to occupy the full height */
-body, .wrapper, #content {
+body, .wrapper {
 	  height: 100%;
 	  position: relative;
 	}
 
 	.wrapper {
 	  display: flex;
+	  flex-wrap: wrap;
 	}
 	/* Styling for the main content area */
 	#content {
-	  flex-grow: 1;
-	  padding: 20px;
-	}
+		flex-grow: 1;
+		padding: 20px;
+		width: 100%; /* Occupy full width by default */
+		max-width: 100%; /* Ensure content doesn't exceed screen width */
+	  }
 
 	/* Media query for responsiveness (optional) */
 	@media (max-width: 768px) {
@@ -121,8 +124,9 @@ body, .wrapper, #content {
 	/* Styling for the sidebar */
 	#sidebar {
 	  height: 100%;
-	  width: 250px;
+	  width: 20%;
 	  padding-top: 20px;
+	  box-sizing: border-box;
 	}
 
 	#sidebar ul {

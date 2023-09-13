@@ -1,0 +1,51 @@
+{% extends "browse/base.html" %}
+{%block content%}
+{% block title %}Search Results{% endblock %}
+<!-- Search results -->
+    <div class="content">
+			<div id="loaded_av">
+				{% for MetaText in object_list %}
+				<div class="border-solid" id="av0">
+				<div class="translation-unit-header">
+				<h3><a href="">{{ MetaText.title}}</a></h3>
+				<h4><a href="">{{ MetaText.session}}</a></h4>
+				<h4><a href="">{{ MetaText.collection}}</a></h4>
+				</div>
+				<div class="container">
+					<div class="div1">
+					<div class="translation-unit">
+						<dl class="word">
+						<dd><a href=""> Lorem </a> <a href=""> ipsum </a></dd>
+						<dt><a href="">word for word</a></dt>
+						</dl>
+						<dl class="word">
+						<dd><a href=""> dolor </a></dd>
+						<dt><a href="">translation</a></dt>
+						</dl>
+						<dl class="word">
+						<dd><a href=""> sit</a></dd>
+						<dt><a href="">with</a></dt>
+						</dl>
+						<dl class="word">
+						<dd><a href=""> amet</a></dd>
+						<dt><a href="">context</a></dt>
+						</dl>
+					</div>
+					</div>
+					<div class="container-fluid">
+					<p> "Word for word translation with context." </p>
+					</div>
+					<div class="div2">
+					<div class="av-item">
+						<audio controls="" preload="none">
+						<source src="">
+						Your browser does not support the audio element.</audio>
+						<a href="textpage.html">See full text</a>
+					</div>
+					</div>
+					</div>
+				</div>
+				{% endfor %}
+	</div>
+	</div>
+{% endblock %}

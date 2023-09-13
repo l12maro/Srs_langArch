@@ -1,9 +1,10 @@
 from django.urls import path
 
 from . import views
+from .views import IndexView
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", IndexView.as_view(), name="index"),
     path("about/", views.about, name="about"),
     path("<str:collection>/", views.coll, name="collection"),
     path("<str:collection>/<str:session>/", views.ses, name="session"),
