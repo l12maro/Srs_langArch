@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_tags %}
 
 <link rel="stylesheet" href="{% static 'browse/style.css' %}">
 <!DOCTYPE html>
@@ -26,10 +27,10 @@
 				<div class="collapse navbar-collapse" id="navbarNav">
 					<ul class="navbar-nav">
 						{% block menu %}
-						<li><a class="nav-link" href="about.html">About</a></li>
-						<li><a class="nav-link" href="search.html">Search</a></li>
-						<li><a class="nav-link" href="results.html">Results</a></li>
-						<li><a class="nav-link active" href="">Browse</a></li>
+						<li><a class="nav-link{% is_active request 'browse:about' %}" href="{% url 'browse:about' %}">About</a></li>
+						<li><a class="nav-link{% is_active request 'search:home' %}" href="{% url 'search:home' %}">Search</a></li>
+						<li><a class="nav-link{% is_active request 'search:results' %}" href="{% url 'search:results' %}">Results</a></li>
+						<li><a class="nav-link{% is_active request 'browse:index' %}" href="{% url 'browse:index' %}">Browse</a></li>
 						{% endblock %}
 					</ul>
 					<div class="nav navbar-nav navbar-right">
@@ -45,36 +46,32 @@
 				  <h3>Filter by</h3>
 				</div>
 				<ul class="list-unstyled components">
-				  <li>
-					<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Session</a>
-					<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
-						<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Session 1</a></li>
-						<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Session 2</a></li>
-						<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Session 3</a></li>
-					</ul>
-				  </li>
-				  <li>
-					<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Speaker</a>
-				  <ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
-					<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Speaker 1</a></li>
-					<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Speaker 2</a></li>
-					<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Speaker 3</a></li>
-					</ul>
-				  </li>
-				  <li>
-					<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Participant</a>
-				  <ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
-					<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Participant 1</a></li>
-					<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Participant 2</a></li>
-					<li><a href="#"><span class="fa fa-chevron-right mr-2"></span> Participant 3</a></li>
-				</ul>
-				  </li>
+					<li>
+						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Collection</a>
+						<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+							{% filterCollection %}
+						</ul>
+					</li>
+				  	<li>
+						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Session</a>
+						<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+							{% filterSession %}
+						</ul>
+				  	</li>
+				  	<li>
+						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Speaker</a>
+				  		<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+							{% filterSpeaker %}
+						</ul>
+				  	</li>
 				</ul>
 			</nav>
-			{% endblock %}
+			{% endblock sidebar %}
+			<div class="content">
+			<h2>{% block title %}{% endblock %}</h2>
 			{% block content %}
-			<h2>{% block title %}{% endblock %}</h2>	
 			{% endblock %}
+		</div>
 </div>
 </body>
 <script>

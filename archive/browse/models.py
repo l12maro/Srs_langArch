@@ -5,6 +5,8 @@ from django.forms import CharField, FileInput
 from django.core.validators import MinLengthValidator
 from pathlib import Path
 
+from django.urls import reverse
+
 def currentDir():
     s = r'g:\Unidades compartidas\Tsuutina-Resources\COLLECTIONS'
     return Path(s)
@@ -43,6 +45,12 @@ class Classify(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        if self.parent == None:
+            return reverse('collection', args=[str(self.name)])
+        else:
+            return reverse('session', args=[str(self.parent), str(self.name)])
 
 class MetaText(models.Model):
     # Define the path where the FilePathField should store files
