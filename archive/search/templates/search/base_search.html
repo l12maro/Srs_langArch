@@ -3,18 +3,18 @@
 	{% block content %}
 	<div class="container-fluid">
 	{% block title %}Search{% endblock %}	
-        <form action="results.html" method="GET">
-			  <input type="text" id="query" name="query" placeholder="Enter your search query" required>
+        <form action="{% url 'search:results' %}" method="GET">
+			  <input type="text" id="query" name="query" placeholder="Enter your search" required>
 			  <br>
 			  <button type="button" onclick="insertSpecialCh1()" class="specialc-button">ɫ</button>
 			  <button type="button" onclick="insertSpecialCh2()" class="specialc-button">ʔ</button>
 			  
 			  <label for="language">Language:</label>
-			  <label for="tsuutina">
-				<input type="radio" id="tsuutina" name="language" value="tsuutina">Tsuut'ina
+			  <label for="srs">
+				<input type="radio" id="srs" name="language" value="srs">Tsuut'ina
 			  </label>
-			  <label for="english">
-				<input type="radio" id="english" name="language" value="english">English
+			  <label for="eng">
+				<input type="radio" id="eng" name="language" value="eng">English
 			  </label>
 			  <br>
 			  
