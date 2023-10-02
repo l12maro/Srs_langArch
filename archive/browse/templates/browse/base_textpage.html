@@ -1,0 +1,118 @@
+{% extends "browse/base.html" %}
+{% block sidebar %}{% endblock %}
+{%block title%} {% endblock %}
+{%block content%}
+	<div class="wrapper">
+    <nav id="sidebar">
+		<div class="metadata">
+					<section>
+						<p>Download(s)<p>	
+						<ul class="download-list">
+						<li><a href="" download="" updated=""><span class="prefix"></span>Original media file (.wav)</a></li>
+						<li><a href="" download="" updated=""><span class="prefix"></span>Small-size media file (.mp3)</a></li>
+						<li><a href="" download="" updated=""><span class="prefix"></span>Annotation (.xml)</a></li>						
+						</ul>
+					</section>
+					<section>
+							<p>Participant(s)</p>
+							<ul>
+							<li><a href="">Participant1	</a></li>
+							<li><a href="">Participant2 </a></li>
+							</ul>							
+					</section>
+					
+											<section>
+							<p>Speaker(s)</p>	
+							<ul>
+							<li><a href="">Speaker1 </a></li>
+							<li><a href="">Speaker2 </a></li>	
+							</ul>							
+					</section>
+										
+					
+					<section>
+						<p>Recording date</p>
+						<ul>
+						<li><a href="">{ MetaText.date}
+						</a></li>
+						</ul>						
+					</section>
+					
+				</div>
+		
+    </nav>
+    <!-- Example page for text -->
+    <div id="content">
+        <h2>{ MetaText.title}		</h2>
+		<h3> (spoken by Speaker1) </h3>
+		<h4 class="strong"> { MetaText.collection}: { MetaText.session} </h4>
+		<div class="av-item">
+				<audio controls="" preload="none"><source src=""></audio>
+				<h4>Tsuut'ina:</h4>
+				<script type="text/javascript">
+            
+		var idlist = Array();
+		var timelist_starts = Array();
+		var timelist_ends = Array();
+            
+		
+                    			idlist.push("S1");
+                				timelist_starts.push(0);
+                				timelist_ends.push(9900);
+            				
+                    			idlist.push("S2");
+                				timelist_starts.push(9900);
+                				timelist_ends.push(18500);
+            				
+                    			idlist.push("S3");
+                				timelist_starts.push(18500);
+                				timelist_ends.push(26190);
+            				
+            				</script>
+                <div id="frame_karaoke" style="resize: vertical; height: 480px; overflow: auto;">
+                    <table class="it table">
+                        <tbody><tr class="transcriptTable">
+                            <td class="segmentInfo">S1</td>
+                            <td class="segmentContent" id="S1">
+                                <div><a href="javascript:playFrom('S1')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
+                                <div class="translation"> Lorem ipsum dolor sit amet,</div><a></a>
+                                <div class="translation"> English translation,</div><a></a></td>
+                        </tr>
+                        <tr class="transcriptTable">
+                            <td class="segmentInfo">S2</td>
+                            <td class="segmentContent hilite" id="S2">
+                                <div><a href="javascript:playFrom('S2')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
+                                <div class="translation">consectetur adipiscing elit.</div><a></a>
+								<div class="translation"> English translation,</div><a></a></td>
+                        </tr>
+                        <tr class="transcriptTable">
+                            <td class="segmentInfo">S3</td>
+                            <td class="segmentContent" id="S3">
+                                <div><a href="javascript:playFrom('S3')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
+                                <div class="translation">Quisque nec pulvinar leo. </div><a></a>
+								<div class="translation"> English translation,</div><a></a></td>
+                        </tr>
+                    </tbody></table>
+                </div>
+                <script type="text/javascript">
+                            $('#frame_karaoke').mousedown(function(e){
+                              clickedOnScrollbar(e.clientX);
+                            });
+                        	$('.imagemapster').mapster({
+                                fillColor: 'F09415',
+                                fillOpacity: 0.3
+                            });
+                            window.onresize = function() {
+                                $('.imagemapster').mapster('resize',$('#imgdiv').width(),0,1);
+                            };
+                            $('.imagemapster').mapster('resize',800,0,1);
+                        </script>
+            </div>
+						</div>
+                    </tbody></table>
+						</div>
+						</div>
+					</div>
+				</div>
+	</div>
+	{% endblock %}

@@ -104,17 +104,20 @@ body, .wrapper {
 	  flex-wrap: wrap;
 	}
 	/* Styling for the main content area */
-	#content {
+	.content {
 		flex-grow: 1;
+		display: block;
 		padding: 20px;
-		width: 100%; /* Occupy full width by default */
+		width: auto; 
 		max-width: 100%; /* Ensure content doesn't exceed screen width */
 	  }
+
 
 	/* Media query for responsiveness (optional) */
 	@media (max-width: 768px) {
 	  .wrapper {
 		flex-direction: column;
+		flex-wrap: wrap;
 	  }
 		nav {
 		width: 100%;
@@ -170,33 +173,76 @@ body, .wrapper {
 		-webkit-box-sizing: border-box;
 		box-sizing: border-box;
 	}
-
 	
     .container {
-	  display: flex;
-	  justify-content: center;
-	  position: absolute;
+		display: inline-flex;
+		justify-content: center;
+		width: auto;
+		position: absolute;
+		max-width: 100%;
     }
+
+	#wrappedcontainer {
+			display: inline-flex;
+			justify-content: left;
+			width: auto;
+			position: absolute;
+			max-width: 100%;
+
+	}
+
 	
 	/* Dynamic side-by-side containers */
 
 	.div1 {
-	  position: left;
-	  width: 47%;
-	  height: 200px;
+		flex-grow: 1;
+		display: inline-block;
+		position: left;
+		width: auto;
+		max-width: 47%;
+		height: auto;
+
 	}
 	
 	.div2 {
-	  position: right;
-	  width: 47%;
-	  height: 200px;
+		flex-grow: 1;
+		display: inline-block;
+		position: right;
+		width: auto;
+		max-width: 47%;
+		height: auto;
+	}
+
+	
+	#wrapped {
+		flex-grow: 1;
+		display: inline-block;
+		position: left;
+		width: auto;
+		max-width: 47%;
+		height: auto;
+
+	}
+	
+	#wrapped {
+		flex-grow: 1;
+		display: inline-block;
+		position: right;
+		width: auto;
+		max-width: 47%;
+		height: auto;
 	}
 	
 	.space {
 	  width: 5%;
+	  position: relative;
 	}
 
 	@media (max-width: 768px) {
+		.container {
+			flex-direction: column;
+
+		}
 	  .div1, .div2, .space {
 		width: 100%;
 	  }

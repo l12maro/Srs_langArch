@@ -1,8 +1,8 @@
-{% extends "browse/base.html" %}
+{% extends "search/base.html" %}
 {% block sidebar %}{% endblock %}
+{% block title %}Search{% endblock %}	
 	{% block content %}
 	<div class="container-fluid">
-	{% block title %}Search{% endblock %}	
         <form action="{% url 'search:results' %}" method="GET">
 			  <input type="text" id="query" name="query" placeholder="Enter your search" required>
 			  <br>

@@ -33,6 +33,11 @@ class Genre(models.Model):
 # The Person class stores all people speaking or participating on files
 class Person(models.Model):
     name = models.CharField(max_length=100)
+    possibleRoles = [
+        ("speaker", "speaker"),
+        ("participant", "participant")
+    ]
+    role = models.CharField(max_length=15, choices=possibleRoles, default="participant")
     
     def __str__(self):
         return self.name
@@ -55,6 +60,7 @@ class Classify(models.Model):
 class MetaText(models.Model):
     # Define the path where the FilePathField should store files
     textEAF = models.TextField()
+    fileType = models.CharField(max_length=5, null=True, blank=True)
     
     #Extract Metadata from the FilePathField
     #Several values will be separated using commas
@@ -141,7 +147,7 @@ class MetaText(models.Model):
                 for contributor in contributors.findall('contributor'):
                     name = contributor.find('name').text
                     role = contributor.find('role').text
-                    contributor_obj, created = Person.objects.get_or_create(name=name)
+                    contributor_obj, created = Person.objects.get_or_create(name=name, role=role)
                     if role == 'speaker':
                         self.speakers.add(contributor_obj)
                     elif role == 'participant':
@@ -150,7 +156,8 @@ class MetaText(models.Model):
             print(f"Error parsing XML: {e}")
             
     def get_values_from_path(self):
-        name, _ = self.textEAF.__str__().split(".")
+        name, type = self.textEAF.__str__().split(".")
+        self.fileType = type
         xml_file = name + ".session"
         xml_file = Path(xml_file)
         
@@ -172,11 +179,6 @@ class MetaText(models.Model):
         self.get_values_from_path()
         super().save(*args, **kwargs)
 
-
-
-# Example usage
-#new_meta_text = MetaText(textEAF="path/to/your/file/srs-TLQ-Tsuutina_Linguistic_Questions/srs-TLQ-20210205/srs-TLQ-20210205.docx", textID=1)
-#new_meta_text.save()
 
 
     
