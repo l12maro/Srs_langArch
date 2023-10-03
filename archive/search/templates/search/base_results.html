@@ -7,8 +7,8 @@
 				{% for MetaText in object_list %}
 				<div class="border-solid" id="av0">
 				<div class="translation-unit-header">
-					<h3><a href="">{{ MetaText.title}}</a></h3>
-					<h4>(from session <a href="">{{ MetaText.session}}</a> in collection <a href="">{{ MetaText.collection}}</a>)</h4>
+					<h3><a href="{% url 'browse:detail' collection=MetaText.collection session=MetaText.session filename=MetaText.filename %}">{{ MetaText.title}}</a></h3>
+					<h4>(from session <a href="{% url 'browse:session' collection=MetaText.collection session=MetaText.session %}">{{ MetaText.session}}</a> in collection <a href="{% url 'browse:collection' collection=MetaText.collection %}">{{ MetaText.collection}}</a>)</h4>
 				</div>
 				<div class="translation-unit">
 					<dl class="word">
@@ -32,15 +32,15 @@
 						<dt><a href="">context</a></dt>
 					</dl>
 				</div>
-				<div class="container">
+				<p>
 				"Word for word translation with context."
-				</div>
+				<p>
 				<div class="av-item">
 						<audio controls="" preload="none">
 						<source src="">
 						Your browser does not support the audio element.</audio>
-						<a href="textpage.html">See full text</a>
 					</div>
+					<p><a href="{% url 'browse:detail' collection=MetaText.collection session=MetaText.session filename=MetaText.filename %}">See full text</a></p>
 				</div>
 				{% endfor %}
 	</div>

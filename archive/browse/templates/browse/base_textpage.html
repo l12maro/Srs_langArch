@@ -1,51 +1,51 @@
 {% extends "browse/base.html" %}
-{% block sidebar %}{% endblock %}
+{% block sidebar %}
+<nav id="sidebar">
+	<div class="metadata">
+				<section>
+					<p>Download(s)<p>	
+					<ul class="download-list">
+					<li><a href="" download="" updated=""><span class="prefix"></span>Original media file (.wav)</a></li>
+					<li><a href="" download="" updated=""><span class="prefix"></span>Small-size media file (.mp3)</a></li>
+					<li><a href="" download="" updated=""><span class="prefix"></span>Annotation (.xml)</a></li>						
+					</ul>
+				</section>
+				<section>
+						<p>Participant(s)</p>
+						<ul>
+						<li><a href="">Participant1	</a></li>
+						<li><a href="">Participant2 </a></li>
+						</ul>							
+				</section>
+				
+										<section>
+						<p>Speaker(s)</p>	
+						<ul>
+						<li><a href="">Speaker1 </a></li>
+						<li><a href="">Speaker2 </a></li>	
+						</ul>							
+				</section>
+									
+				
+				<section>
+					<p>Recording date</p>
+					<ul>
+					<li><a href="">{{ MetaText.date}}
+					</a></li>
+					</ul>						
+				</section>
+				
+			</div>
+	
+</nav>
+{% endblock %}
 {%block title%} {% endblock %}
 {%block content%}
-	<div class="wrapper">
-    <nav id="sidebar">
-		<div class="metadata">
-					<section>
-						<p>Download(s)<p>	
-						<ul class="download-list">
-						<li><a href="" download="" updated=""><span class="prefix"></span>Original media file (.wav)</a></li>
-						<li><a href="" download="" updated=""><span class="prefix"></span>Small-size media file (.mp3)</a></li>
-						<li><a href="" download="" updated=""><span class="prefix"></span>Annotation (.xml)</a></li>						
-						</ul>
-					</section>
-					<section>
-							<p>Participant(s)</p>
-							<ul>
-							<li><a href="">Participant1	</a></li>
-							<li><a href="">Participant2 </a></li>
-							</ul>							
-					</section>
-					
-											<section>
-							<p>Speaker(s)</p>	
-							<ul>
-							<li><a href="">Speaker1 </a></li>
-							<li><a href="">Speaker2 </a></li>	
-							</ul>							
-					</section>
-										
-					
-					<section>
-						<p>Recording date</p>
-						<ul>
-						<li><a href="">{ MetaText.date}
-						</a></li>
-						</ul>						
-					</section>
-					
-				</div>
-		
-    </nav>
+    
     <!-- Example page for text -->
-    <div id="content">
-        <h2>{ MetaText.title}		</h2>
+        <h2>{{ MetaText.title}}	</h2>
 		<h3> (spoken by Speaker1) </h3>
-		<h4 class="strong"> { MetaText.collection}: { MetaText.session} </h4>
+		<h4 class="strong"><a href="{% url 'browse:collection' collection=MetaText.collection %}"> {{ MetaText.collection}} </a>: <a href="{% url 'browse:session' collection=MetaText.collection session=MetaText.session %}"> {{ MetaText.session}} </a></h4>
 		<div class="av-item">
 				<audio controls="" preload="none"><source src=""></audio>
 				<h4>Tsuut'ina:</h4>
@@ -114,5 +114,4 @@
 						</div>
 					</div>
 				</div>
-	</div>
 	{% endblock %}

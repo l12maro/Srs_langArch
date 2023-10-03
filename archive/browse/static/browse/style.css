@@ -106,10 +106,9 @@ body, .wrapper {
 	/* Styling for the main content area */
 	.content {
 		flex-grow: 1;
-		display: block;
 		padding: 20px;
-		width: auto; 
-		max-width: 100%; /* Ensure content doesn't exceed screen width */
+		width: auto;
+		max-width: 100%;
 	  }
 
 
@@ -251,17 +250,24 @@ body, .wrapper {
 	/* list of objects */
 	
 	#loaded_av {
-	margin: 0;
-    padding: 10px;
-    border: 0;
-    vertical-align: baseline;
-	position: absolute;
+		margin: 0;
+		padding: 10px;
+		border: 0;
+		vertical-align: baseline;
+		position: absolute;
+		width:75%
+
 	}
 	
 	.av-item {
-    padding-top: 10px;
-    margin-bottom: 10px;
-	width:100%; 
+		padding-top: 10px;
+		margin-bottom: 10px;
+		position: relative;
+		width: 100%;
+		display: flex;
+		justify-content: center; /* Center items vertically */
+		align-items: center; /* Center items horizontally */
+		text-align: center;  
 	}
 
 	.border-solid {
@@ -274,38 +280,19 @@ body, .wrapper {
 		width:100%;
 	}
 	
-	.translation-unit-header {
-		padding-bottom: 10px;
-		margin-bottom: 10px;
-		border-bottom: 1px dotted black;
-		margin-left: -20px;
-		margin-right: -10px;
-		padding-right: 10px;
-		padding-left: 20px;
-		font-style: strong;
-		font-size: 16pt;	}
-	
-	
-	.word {
-		float: left;
-	}
-	
-	.word dd, .word dt, .word dl, .sentence {
-		text-align: left;
-		padding: 10px;
-		margin: 0px;
-		white-space: nowrap;
-	}
-	
-	.dd {
-		display: block;
-		margin-inline-start: 40px;
-	}
-	
-	audio {
-	  width: 100%;
-	  position: absolute; 
-	}
+	.border-solid .container {
+		justify-content: center; 
+		align-items: center; 
+		text-align: center; 
+	  }
+	  
+	  audio {
+		display: flex;
+		justify-content: center; /* Center items vertically */
+		align-items: center; /* Center items horizontally */
+		text-align: center; 
+		width: inherit;
+	  }
 	
 	
 	a:link {

@@ -60,6 +60,7 @@ class Classify(models.Model):
 class MetaText(models.Model):
     # Define the path where the FilePathField should store files
     textEAF = models.TextField()
+    filename = models.CharField(max_length=255, null=True, blank=True)
     fileType = models.CharField(max_length=5, null=True, blank=True)
     
     #Extract Metadata from the FilePathField
@@ -164,6 +165,9 @@ class MetaText(models.Model):
         self.parse_xml(xml_file)
         
         path = Path(self.textEAF.__str__())
+        
+        _, filename = os.path.split(path)
+        self.filename = filename
 
         # Extract classifying values from the path
         fdir, session = get_metadata(path)
