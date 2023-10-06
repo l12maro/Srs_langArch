@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.template import loader
 from .models import MetaText, Person, Classify
+from django.db.models import Count
 
 class IndexArchiveView(ListView):
     model = Classify
@@ -17,23 +18,44 @@ class IndexArchiveView(ListView):
         return Classify.objects.filter(parent__isnull=True)
 
 class CollectionView(ListView):
-    model = MetaText
+    model = Classify
     template_name = 'browse/base_collection.html'  
     context_object_name = 'collection'
 
     def get_queryset(self):
         coll = self.kwargs['collection']
-        return MetaText.objects.filter(collection__name=coll).order_by('date')
+        return Classify.objects.filter(parent__name=coll).order_by('name')
     
 class SessionView(ListView):
     model = MetaText
-    template_name = 'browse/base_collection.html'  
+    template_name = 'browse/base_session.html'  
     context_object_name = 'session'
 
     def get_queryset(self):
         coll = self.kwargs['collection']
         ses = self.kwargs['session']
-        return MetaText.objects.filter(collection__name=coll).filter(session__name=ses).order_by('date')
+        queryset = MetaText.objects.filter(collection__name=coll).filter(session__name=ses)
+        results = []
+        
+        #get distinct titles
+        titles = queryset.values('title').annotate(count=Count('title'))
+        
+        value_hierarchy = ['wav', 'mp3', 'pdf', 'docx']
+        
+        for t in titles:
+            queryset_title = queryset.filter(title=t['title'])
+            #If there are several elements with the same title, check if audio exists
+            if t['count'] > 1:
+                for v in value_hierarchy:
+                    queryset_type = queryset_title.filter(fileType=v)
+                    if queryset_type:
+                        results.append(get_object_or_404(queryset_type))
+                        break
+
+            else:
+                results.append(get_object_or_404(queryset_title))
+        
+        return results
 
 class TextView(DetailView):
     model = MetaText

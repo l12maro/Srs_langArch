@@ -1,34 +1,23 @@
 {% extends "browse/base.html" %}
-{% block title %}{{ MetaText.collection.name }}{% endblock %}
+{% block title %}{{ Classify.parent.name }}{% endblock %}
 {%block content%}
-<div class="content">
-
-	<div>
-		<p>
+<div class="content" id="wrappedcontainer">
+	<p>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		</p>
-	</div>
+	</p>
 		<!-- Populate the search results dynamically -->
 	<div>
-		</h3>Material</h3>
-			<div id="loaded_av">
-				{% for MetaText in object_list %}
-				<div class="border-solid" id="av0">
-				<h3> {{ MetaText.title }} </h3>
-				<p> (spoken by {{ MetaText.Speaker}}) </p>
-				<span class="strong"><a href="{% url 'browse:session' collection=MetaText.collection session=MetaText.session %}"> {{ MetaText.session}} </a></span>
-				<div class="av-item">
-				<audio controls="" preload="none"><source src=""></audio>
-				<a href="{% url 'browse:detail' collection=MetaText.collection session=MetaText.session filename=MetaText.filename %}">See transcription</a>
-				</div>
+		<h3>Sessions</h3>
+			<div class="grid-container">
+			{% for Classify in object_list %}
+				<div class="grid-item">
+				<h4><a href="{% url 'browse:session' collection=Classify.parent.name session=Classify.name %}"> {{ Classify.name }} </a></h4>
 				</div>
 				{% endfor %}
+			</div>
 	</div>
-	</div>
+</div>
 	{% endblock %}
-</div>
-</div>
-</body>
 
 	<script>
 		function toggleAdvancedOptions() {

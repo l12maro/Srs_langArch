@@ -30,7 +30,7 @@
 				<section>
 					<p>Recording date</p>
 					<ul>
-					<li><a href="">{{ MetaText.date}}
+					<li><a href="">{ MetaText.date }
 					</a></li>
 					</ul>						
 				</section>
@@ -43,9 +43,9 @@
 {%block content%}
     
     <!-- Example page for text -->
-        <h2>{{ MetaText.title}}	</h2>
+        <h2>{{ object.title }}	</h2>
 		<h3> (spoken by Speaker1) </h3>
-		<h4 class="strong"><a href="{% url 'browse:collection' collection=MetaText.collection %}"> {{ MetaText.collection}} </a>: <a href="{% url 'browse:session' collection=MetaText.collection session=MetaText.session %}"> {{ MetaText.session}} </a></h4>
+		<h4 class="strong"><a href=""> {  MetaText.collection } </a>: <a href=""> { MetaText.session } </a></h4>
 		<div class="av-item">
 				<audio controls="" preload="none"><source src=""></audio>
 				<h4>Tsuut'ina:</h4>
