@@ -10,9 +10,7 @@
 				{% for Classify in object_list %}
 				<li><a class="browse" href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed" id="Head_1"> {{ Classify.name }} </a>
 					<ul class="list-unstyled collapse show" id="pageSubmenu1">
-					<li>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-					</li>
+					<li>	{{Classify.synopsis}}	</li>
 					<li><a href="{% url 'browse:collection' Classify.name %}"><span class="fa fa-chevron-right mr-2"></span> Go to collection </a></li>
 					{% endfor %}
 			</ul>

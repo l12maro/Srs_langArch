@@ -48,19 +48,22 @@ class Person(models.Model):
 # The Classify class stores all collections and sessions given
 class Classify(models.Model):
     name = models.CharField(max_length=100)
-    title = models.CharField(max_length=100)
-    synopsis = models.TextField(null=True, blank=True)
-    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
-    working_language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
-    location = models.CharField(max_length=255)
-    region = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
-    continent = models.CharField(max_length=255)
-    access = models.CharField(max_length=255)
-    depositor = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True, blank=True)
-    contact_person = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True, blank=True)
-
+    path = models.TextField(null=True, blank=True)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+
+    
+    title = models.CharField(max_length=100, null=True, blank=True)
+    synopsis = models.TextField(null=True, blank=True)
+    language = models.ForeignKey(Language, related_name="coll_lang", on_delete=models.SET_NULL, null=True, blank=True)
+    working_language = models.ForeignKey(Language, related_name="coll_wl", on_delete=models.SET_NULL, null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
+    region = models.CharField(max_length=255, null=True, blank=True)
+    country = models.CharField(max_length=255, null=True, blank=True)
+    continent = models.CharField(max_length=255, null=True, blank=True)
+    access = models.CharField(max_length=255, null=True, blank=True)
+    depositor = models.ForeignKey(Person, related_name="depositor", on_delete=models.SET_NULL, null=True, blank=True)
+    contact_person = models.ForeignKey(Person, related_name="contact", on_delete=models.SET_NULL, null=True, blank=True)
+
     
     def parse_xml_coll(self, xml_path):
         try:
@@ -68,42 +71,45 @@ class Classify(models.Model):
                 tree = ET.parse(xml_file)
                 root = tree.getroot()
                 
-                self.title = root.find('Title').text
+                title = root.find('Title').text
+                if title is not None:
+                    self.title = title
+                    
+                synopsis = root.find('ProjectDescription').text
+                if synopsis is not None:
+                    self.synopsis = synopsis
                 
                 #if no languages are specified, we add Tsuut'ina as the default
-                languages = root.find('VernacularISO3CodeAndName').text
-                if languages is not None:
-                    code, _ = languages.split(':')
-                    l, created = Language.objects.get_or_create(name=l.strip())
-                    self.language = l
+                language = root.find('VernacularISO3CodeAndName').text
+                if language is not None:
+                    code, _ = language.split(':')
+                    self.language, created = Language.objects.get_or_create(name=code.strip())
 
                 else:
-                    tsuu, created = Language.objects.get_or_create(name="srs")
-                    self.language = tsuu
+                    self.language, created = Language.objects.get_or_create(name="srs")
+                
                     
                 #if no working languages are specified, we add English as the default
-                working_languages = root.find('AnalysisISO3CodeAndName').text
-                if working_languages is not None:
-                    code, _ = languages.split(':')
-                    l, created = Language.objects.get_or_create(name=l.strip())
-                    self.working_language = l
+                wl = root.find('AnalysisISO3CodeAndName').text
+                if wl is not None:
+                    code, _ = wl.split(':')
+                    self.working_language, created = Language.objects.get_or_create(name=code.strip())
             
                 else:
-                    eng, created = Language.objects.get_or_create(name="eng")
-                    self.working_language = eng
+                    self.working_language, created = Language.objects.get_or_create(name="eng")
 
                 loc = root.find('Location').text
                 if loc is not None:
                     self.location = loc
-                    
+                
                 region = root.find('Region').text
                 if region is not None:
                     self.region = region
-                    
+                
                 country = root.find('Country').text
                 if country is not None:
                     self.country = country
-                    
+
                 continent = root.find('Continent').text
                 if continent is not None:
                     self.continent = continent
@@ -112,22 +118,29 @@ class Classify(models.Model):
                 if access is not None:
                     self.access = access
                     
-                synopsis = root.find('ProjectDescription').text
-                if synopsis is not None:
-                    self.synopsis = synopsis
-                
                 depositor = root.find('Depositor').text
                 if depositor is not None:
-                    depositor, created = Person.objects.get_or_create(name=depositor, role="depositor")
-                    self.depositor = depositor
+                    self.depositor, created = Person.objects.get_or_create(name=depositor, role="depositor")
                     
                 contact = root.find('ContactPerson').text
                 if contact is not None:
-                    contact, created = Person.objects.get_or_create(name=contact, role="contact")
-                    self.contact_person = contact
-
+                    self.contact_person, created = Person.objects.get_or_create(name=contact, role="contact")
+                        
         except Exception as e:
             print(f"Error parsing XML: {e}")
+            
+    def get_values_from_path(self):
+        xml_file = self.path.__str__() + "\\" + self.name + ".sprj"
+        xml_file = Path(xml_file)
+        
+        self.parse_xml_coll(xml_file)
+        
+    # Override the save method to automatically populate fields
+    def save(self, *args, **kwargs):
+        if self.parent == None:
+            self.get_values_from_path()
+            super().save(*args, **kwargs)
+            
     
     def __str__(self):
         return self.name
@@ -234,9 +247,65 @@ class MetaText(models.Model):
                         self.speakers.add(contributor_obj)
                     elif role == 'participant':
                         self.participants.add(contributor_obj)
+                        
         except Exception as e:
             print(f"Error parsing XML: {e}")
+            
+    '''
+    def parse_xml_coll(self, xml_path):
+        try:
+            with open(xml_path, 'r', encoding='utf-8') as xml_file:
+                tree = ET.parse(xml_file)
+                root = tree.getroot()
+                
+                title = root.find('Title').text
+                
+                #if no languages are specified, we add Tsuut'ina as the default
+                language = root.find('VernacularISO3CodeAndName').text
+                if language is not None:
+                    code, _ = language.split(':')
+                    l, created = Language.objects.get_or_create(name=l.strip())
+                    language = l
+
+                else:
+                    tsuu, created = Language.objects.get_or_create(name="srs")
+                    language = tsuu
+                    
+                #if no working languages are specified, we add English as the default
+                wl = root.find('AnalysisISO3CodeAndName').text
+                if wl is not None:
+                    code, _ = wl.split(':')
+                    l, created = Language.objects.get_or_create(name=l.strip())
+                    wl = l
+            
+                else:
+                    eng, created = Language.objects.get_or_create(name="eng")
+                    self.working_language = eng
+
+                loc = root.find('Location').text
+
+                region = root.find('Region').text
+
+                country = root.find('Country').text
+
+                continent = root.find('Continent').text
+                
+                access = root.find('AccessProtocol').text
+                    
+                synopsis = root.find('ProjectDescription').text
+                
+                depositor = root.find('Depositor').text
+                if depositor is not None:
+                    depositor, created = Person.objects.get_or_create(name=depositor, role="depositor")
+                    
+                contact = root.find('ContactPerson').text
+                if contact is not None:
+                    contact, created = Person.objects.get_or_create(name=contact, role="contact")
                         
+        except Exception as e:
+            print(f"Error parsing XML: {e}")
+    
+              '''          
     def get_values_from_path(self):
         name, type = self.textEAF.__str__().split(".")
         self.fileType = type
@@ -252,14 +321,15 @@ class MetaText(models.Model):
 
         # Extract classifying values from the path
         fdir, session = get_metadata(path)
-        fdir, collection = get_metadata(fdir)
-        self.collection, created = Classify.objects.get_or_create(name=collection)            
         self.session, created = Classify.objects.get_or_create(name=session, parent=self.collection)
+
+        _, collection = get_metadata(fdir)
+        #title, l, wl, loc, reg, country, cont, acc, synopsis, contrib, contact = self.parse_xml_coll(xml_path=xml_file)
+        #self.collection, created = Classify.objects.get_or_create(name=collection, title=title, synopsis=synopsis, \
+        #    language=l, working_language=wl, location=loc, region=reg, country=country, continent=cont, access=acc, depositor=contrib, contact_person=contact)
+        self.collection, created = Classify.objects.get_or_create(name=collection, path=str(os.path.dirname(fdir)))
+
 
     def __repr__(self):
         return f"{self.title} spoken by {self.speakers}, with participants {self.participants}. Classified within session {self.session} of the collection {self.collection}."
     
-    # Override the save method to automatically populate fields
-    def save(self, *args, **kwargs):
-        self.get_values_from_path()
-        super().save(*args, **kwargs)

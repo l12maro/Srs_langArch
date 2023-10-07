@@ -71,36 +71,6 @@ class TextView(DetailView):
             obj = get_object_or_404(queryset)
             return obj        
 
-'''
-def detail(request, collection, session, filetype):
-    elements = MetaText.objects.filter(collection__name=collection).filter(session__name=session)
-    elements = elements.filter(collection__fileType=filetype)
-    
-    
-    return render(request, "browse/base_textpage.html", elements)
-
-def coll(request, collection):
-    elements = MetaText.objects.filter(collection__name=collection).order_by("date")
-    context = {
-        "element": elements,
-    }
-
-    return render(request, "browse/base_collection.html", context)
-
-
-
-def ses(request, collection, session):
-    elements = MetaText.objects.filter(collection__name=collection)
-    elements = MetaText.objects.filter(session__name=session)
-    file_list = elements.order_by("date")[:5]
-    context = {
-        "file_list": file_list,
-    }
-    return render(request, "browse/base_collection.html", context)
-
-'''
-
-
 
 def about(request):
     return render(request, "browse/base_home.html")
