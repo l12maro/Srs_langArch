@@ -13,16 +13,18 @@
 				<section>
 						<p>Participant(s)</p>
 						<ul>
-						<li><a href="">Participant1	</a></li>
-						<li><a href="">Participant2 </a></li>
+							{% for p in object.participants.all %}
+							<li><a href="">{{p.name}}</a></li>
+							{% endfor %}
 						</ul>							
 				</section>
 				
 										<section>
 						<p>Speaker(s)</p>	
 						<ul>
-						<li><a href="">Speaker1 </a></li>
-						<li><a href="">Speaker2 </a></li>	
+							{% for p in object.speakers.all %}
+							<li><a href="">{{p.name}}</a></li>
+								{% endfor %}
 						</ul>							
 				</section>
 									
@@ -30,7 +32,7 @@
 				<section>
 					<p>Recording date</p>
 					<ul>
-					<li><a href="">{ MetaText.date }
+					<li><a href="">{{ object.date }}
 					</a></li>
 					</ul>						
 				</section>
@@ -44,8 +46,7 @@
     
     <!-- Example page for text -->
         <h2>{{ object.title }}	</h2>
-		<h3> (spoken by Speaker1) </h3>
-		<h4 class="strong"><a href=""> {  MetaText.collection } </a>: <a href=""> { MetaText.session } </a></h4>
+		<h4 class="strong"><a href="{% url 'browse:collection' collection=object.collection %}"> {{  object.collection.title }}</a>: <a href=""> {{ object.title }} </a></h4>
 		<div class="av-item">
 				<audio controls="" preload="none"><source src=""></audio>
 				<h4>Tsuut'ina:</h4>

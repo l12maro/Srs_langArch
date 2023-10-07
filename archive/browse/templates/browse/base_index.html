@@ -8,7 +8,7 @@
 		<h3> Collection </h3>
 			<ul class="list-unstyled components">
 				{% for Classify in object_list %}
-				<li><a class="browse" href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed" id="Head_1"> {{ Classify.name }} </a>
+				<li><a class="browse" href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed" id="Head_1"> {{ Classify.title }} </a>
 					<ul class="list-unstyled collapse show" id="pageSubmenu1">
 					<li>	{{Classify.synopsis}}	</li>
 					<li><a href="{% url 'browse:collection' Classify.name %}"><span class="fa fa-chevron-right mr-2"></span> Go to collection </a></li>

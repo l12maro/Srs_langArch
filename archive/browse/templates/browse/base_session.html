@@ -1,26 +1,19 @@
 {% extends "browse/base.html" %}
-{% block title %}{{ MetaText.session.name }}{% endblock %}
+{% block title %}{{ object_list.0.title }}{% endblock %}
 {%block content%}
 <div class="content" id="wrappedcontent">
-
+		<p>	{{ object_list.0.synopsis }} </p>
 	<div>
-		<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		</p>
-	</div>
-		<!-- Populate the search results dynamically -->
-	<div>
-		</h3>Material</h3>
+		<h3>Material</h3>
 			<div id="loaded_av">
-				{% for MetaText in object_list %}
+				{% for object in object_list %}
 				<div class="border-solid" id="av0">
-				<h3> {{ MetaText.title }} </h3>
-				<h4>Session: <a href="{% url 'browse:session' collection=MetaText.collection session=MetaText.session %}"> {{ MetaText.session}} </a></h4>
-				<h4>Collection: <a href="{% url 'browse:collection' collection=MetaText.collection %}"> {{ MetaText.collection}} </a></h4>
+				<h3> {{ object.title }} </h3>
+				<h4>Collection: <a href="{% url 'browse:collection' collection=object.collection %}"> {{ object.collection.title}} </a></h4>
 				<h4></h4>
 				<div class="av-item">
 				<audio controls="" preload="none"><source src=""></audio>
-				<a href="{% url 'browse:detail' collection=MetaText.collection session=MetaText.session filename=MetaText.filename %}">See transcription</a>
+				<a href="{% url 'browse:detail' collection=object.collection session=object.session filename=object.filename %}">See transcription</a>
 				</div>
 				</div>
 				{% endfor %}

@@ -1,8 +1,8 @@
 {% extends "browse/base.html" %}
-{% block title %}{{ Classify.parent.name }}{% endblock %}
+{% block title %}{{ object_list.0.parent.title }}{% endblock %}
 {%block content%}
 <div class="content" id="wrappedcontainer">
-	<p> {{Classify.parent.synopsis}} </p>
+	<p> {{ object_list.0.parent.synopsis}} </p>
 		<!-- Populate the search results dynamically -->
 	<div>
 		<h3>Sessions</h3>
