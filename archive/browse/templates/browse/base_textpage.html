@@ -1,19 +1,20 @@
 {% extends "browse/base.html" %}
+{% load custom_tags %}
 {% block sidebar %}
 <nav id="sidebar">
 	<div class="metadata">
 				<section>
 					<p>Download(s)<p>	
 					<ul class="download-list">
-					<li><a href="" download="" updated=""><span class="prefix"></span>Original media file (.wav)</a></li>
-					<li><a href="" download="" updated=""><span class="prefix"></span>Small-size media file (.mp3)</a></li>
-					<li><a href="" download="" updated=""><span class="prefix"></span>Annotation (.xml)</a></li>						
+						{% for f in files %}
+						<li><a href="{% url 'browse:download_file' file_id=file.id %}" download="" updated=""><span class="prefix"></span>{{f.name}}.{{f.type}}</a></li>	
+						{% endfor %}			
 					</ul>
 				</section>
 				<section>
 						<p>Participant(s)</p>
 						<ul>
-							{% for p in object.participants.all %}
+							{% for p in object.session.participants.all %}
 							<li><a href="">{{p.name}}</a></li>
 							{% endfor %}
 						</ul>							
@@ -22,7 +23,7 @@
 										<section>
 						<p>Speaker(s)</p>	
 						<ul>
-							{% for p in object.speakers.all %}
+							{% for p in object.session.speakers.all %}
 							<li><a href="">{{p.name}}</a></li>
 								{% endfor %}
 						</ul>							
@@ -32,7 +33,7 @@
 				<section>
 					<p>Recording date</p>
 					<ul>
-					<li><a href="">{{ object.date }}
+					<li><a href="">{{ object.session.date }}
 					</a></li>
 					</ul>						
 				</section>
@@ -45,10 +46,27 @@
 {%block content%}
     
     <!-- Example page for text -->
-        <h2>{{ object.title }}	</h2>
-		<h4 class="strong"><a href="{% url 'browse:collection' collection=object.collection %}"> {{  object.collection.title }}</a>: <a href=""> {{ object.title }} </a></h4>
-		<div class="av-item">
+        <h2>{{ object.session.title }}	</h2>
+		<h4 class="strong"><a href="{% url 'browse:collection' collection=object.session.collection.name %}"> 
+			{{  object.session.collection.title }}</a>: 
+			<a href="{% url 'browse:session' collection=object.session.collection.name session=object.session.name %}"> 
+				{{ object.session.title }} </a></h4>
+
+		{% if object.type|is_audio_file or object.type|is_video_file %}
+			<div class="av-item">
+
+				{% if object.type|is_audio_file %}
 				<audio controls="" preload="none"><source src=""></audio>
+				{% endif %}
+
+				{% if object.type|is_video_file %}
+				<video controls preload="none" width="640" height="360">
+					<source src="{% url 'browse:video_view' collection=object.session.collection.name session=object.session filetype=object.type %}"
+					type="video/mp4">
+					Your browser does not support video display.
+				</video>
+				{% endif %}
+
 				<h4>Tsuut'ina:</h4>
 				<script type="text/javascript">
             
@@ -95,6 +113,7 @@
                         </tr>
                     </tbody></table>
                 </div>
+			</div>
                 <script type="text/javascript">
                             $('#frame_karaoke').mousedown(function(e){
                               clickedOnScrollbar(e.clientX);
@@ -108,11 +127,6 @@
                             };
                             $('.imagemapster').mapster('resize',800,0,1);
                         </script>
-            </div>
-						</div>
-                    </tbody></table>
-						</div>
-						</div>
-					</div>
-				</div>
+			{% endif %}
+						
 	{% endblock %}

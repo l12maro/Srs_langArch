@@ -34,7 +34,7 @@
 						{% endblock %}
 					</ul>
 					<div class="nav navbar-nav navbar-right">
-						<a class="nav-link" href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a>
+						<a class="nav-link" href="{% url 'admin:index' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a>
 					</div>
 				</div>
 			</div>
@@ -48,20 +48,30 @@
 				<ul class="list-unstyled components">
 					<li>
 						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Collection</a>
-						<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
-							{% filterCollection %}
+						<ul class="list-unstyled collapse show" id="pageSubmenu1">
+							{% for obj in filterCollection %}
+							<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{obj.name}</a></li>
+							{% endfor %}
 						</ul>
 					</li>
 				  	<li>
-						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Session</a>
-						<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
-							{% filterSession %}
+						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Genre</a>
+						<ul class="list-unstyled collapse show" id="pageSubmenu1" >
+							{% for obj in filterGenre %}
+							<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{obj.name}</a></li>
+							{% endfor %}
 						</ul>
 				  	</li>
 				  	<li>
 						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Speaker</a>
-				  		<ul class="list-unstyled collapse show" id="pageSubmenu1" style="">
+				  		<ul class="list-unstyled collapse show" id="pageSubmenu1" >
 							{% filterSpeaker %}
+						</ul>
+				  	</li>
+					<li>
+						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Language</a>
+				  		<ul class="list-unstyled collapse show" id="pageSubmenu1" >
+							{% filterLanguage %}
 						</ul>
 				  	</li>
 				</ul>

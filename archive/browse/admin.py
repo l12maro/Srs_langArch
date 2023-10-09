@@ -1,20 +1,24 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import MetaText, Classify, Language, Person
+from .models import Session, Collection, File, Person
 
 
-class MetaTextAdmin(admin.ModelAdmin):
-    list_display = ("textEAF", "collection", "session", "title", "synopsis", "date", "fileType")
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ("collection", "title", "synopsis")
     
-    
-admin.site.register(MetaText, MetaTextAdmin)
+admin.site.register(Session, SessionAdmin)
 
-class ClassifyAdmin(admin.ModelAdmin):
-    list_display = ("name", "parent", "title", "synopsis", "access")
+class CollectionAdmin(admin.ModelAdmin):
+    list_display = ("name", "title", "synopsis", "access")
     
-admin.site.register(Classify, ClassifyAdmin)
+admin.site.register(Collection, CollectionAdmin)
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ("name", "role")
     
 admin.site.register(Person, PersonAdmin)
+
+class FileAdmin(admin.ModelAdmin):
+    list_display = ("name", "type")
+    
+admin.site.register(File, FileAdmin)

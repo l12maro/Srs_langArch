@@ -1,12 +1,12 @@
 from django.views.generic import TemplateView, ListView, DetailView
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.template import loader
-from .models import MetaText, Person, Classify
+from .models import Session, Person, Collection, File
 from django.db.models import Count
 
 class IndexArchiveView(ListView):
-    model = Classify
+    model = Collection
     template_name = "browse/base_index.html"
     
     def get_context_data(self, **kwargs):
@@ -15,28 +15,29 @@ class IndexArchiveView(ListView):
         return context
     
     def get_queryset(self):
-        return Classify.objects.filter(parent__isnull=True)
+        return Collection.objects.all()
 
 class CollectionView(ListView):
-    model = Classify
+    model = Session
     template_name = 'browse/base_collection.html'  
     context_object_name = 'collection'
 
     def get_queryset(self):
         coll = self.kwargs['collection']
-        return Classify.objects.filter(parent__name=coll).order_by('name')
+        return Session.objects.filter(collection__name=coll).order_by('name')
     
 class SessionView(ListView):
-    model = MetaText
+    model = File
     template_name = 'browse/base_session.html'  
     context_object_name = 'session'
 
     def get_queryset(self):
         coll = self.kwargs['collection']
         ses = self.kwargs['session']
-        queryset = MetaText.objects.filter(collection__name=coll).filter(session__name=ses)
+        #TODO: How to filter from collection when collection is not refered in File
+        queryset = File.objects.filter(session__name=ses)
+        '''
         results = []
-        
         #get distinct titles
         titles = queryset.values('title').annotate(count=Count('title'))
         
@@ -56,21 +57,47 @@ class SessionView(ListView):
                 results.append(get_object_or_404(queryset_title))
         
         return results
+        '''
+        return queryset
 
 class TextView(DetailView):
-    model = MetaText
+    model = File
     template_name = "browse/base_textpage.html"
     
     def get_object(self, queryset=None):
             coll = self.kwargs['collection']
             ses = self.kwargs['session']
-            file = self.kwargs['filename']  
-            queryset = MetaText.objects.filter(collection__name=coll).filter(session__name=ses).filter(filename=file)
+            type = self.kwargs['filetype']  
+            #TODO: How to filter from collection when collection is not refered in File
+            queryset = File.objects.filter(session__name=ses).filter(type=type)
 
             # Use get_object_or_404 to retrieve the object or raise a 404 if not found
             obj = get_object_or_404(queryset)
-            return obj        
+            return obj    
+        
+    def get_context_data(self, **kwargs):
+        ses = self.kwargs['session']
+        context = super(TextView, self).get_context_data(**kwargs)
+        context['files'] = File.objects.filter(session__name=ses)
+        return context
+    
+            
+def videoView(request, collection, session, filetype):
+    # Retrieve the File object based on session and file type
+    file = File.objects.filter(session__name=session).filter(type=filetype)
+    file = get_object_or_404(file)
 
+    # Serve the video file
+    response = FileResponse(file.content)
+    return response
+
+def download_file(request, file_id):
+    file = File.objects.filter(id=file_id)
+    file = get_object_or_404(file)
+
+    response = FileResponse(file.content)
+    response['Content-Disposition'] = f'attachment; filename="{file.name}"'
+    return response
 
 def about(request):
     return render(request, "browse/base_home.html")

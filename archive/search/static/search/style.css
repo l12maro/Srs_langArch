@@ -144,6 +144,7 @@ body, .wrapper {
   
   .dropdown-toggle {
       white-space: nowrap;
+      font-weight: bold;
   }
   
   .dropdown-toggle::before {

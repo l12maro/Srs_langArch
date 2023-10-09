@@ -1,20 +1,22 @@
 {% extends "browse/base.html" %}
-{% block title %}{{ object_list.0.title }}{% endblock %}
+{% load custom_tags %}
+{% block title %}{{ object_list.0.session.title }}{% endblock %}
 {%block content%}
 <div class="content" id="wrappedcontent">
-		<p>	{{ object_list.0.synopsis }} </p>
+		<p>	{{ object_list.0.session.synopsis }} </p>
 	<div>
 		<h3>Material</h3>
 			<div id="loaded_av">
 				{% for object in object_list %}
 				<div class="border-solid" id="av0">
-				<h3> {{ object.title }} </h3>
-				<h4>Collection: <a href="{% url 'browse:collection' collection=object.collection %}"> {{ object.collection.title}} </a></h4>
-				<h4></h4>
+				<h3> {{ object.session.title }}: {{ object.type }} </h3>
+				<h4>Collection: <a href="{% url 'browse:collection' collection=object.session.collection %}"> {{ object.session.collection.title}} </a></h4>
+                {% if object.type|is_audio_file %}
 				<div class="av-item">
 				<audio controls="" preload="none"><source src=""></audio>
-				<a href="{% url 'browse:detail' collection=object.collection session=object.session filename=object.filename %}">See transcription</a>
 				</div>
+				{% endif %}
+				<a href="{% url 'browse:detail' collection=object.session.collection session=object.session filetype=object.type %}">See file</a>
 				</div>
 				{% endfor %}
 	</div>

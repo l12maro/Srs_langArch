@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic import TemplateView, ListView
-from browse.models import MetaText
+from browse.models import File, Session
 from django.db.models import Q
 
 class HomePageView(TemplateView):
     template_name = 'search\\base_search.html'
     
 class SearchResultsView(ListView):
-    model = MetaText
+    model = Session
     template_name = 'search\\base_results.html'
     context_object_name = 'search_results'
 
@@ -24,14 +24,14 @@ class SearchResultsView(ListView):
             lang = self.request.GET.get("language")
             
             if lang:
-                result_list = MetaText.objects.filter(Q(languages__name=lang)).filter(Q(title__icontains=query))
+                result_list = Session.objects.filter(Q(languages__name=lang)).filter(Q(title__icontains=query))
             
             else:
-                result_list = MetaText.objects.filter(
+                result_list = Session.objects.filter(
                 Q(title__icontains=query)
                 )
         else:
-            result_list = MetaText.objects.none()
+            result_list = Session.objects.none()
         
         return result_list
     

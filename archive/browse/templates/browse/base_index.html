@@ -7,11 +7,11 @@
 		<div class="div1" id="wrapped">
 		<h3> Collection </h3>
 			<ul class="list-unstyled components">
-				{% for Classify in object_list %}
-				<li><a class="browse" href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed" id="Head_1"> {{ Classify.title }} </a>
+				{% for object in object_list %}
+				<li><a class="browse" href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed" id="Head_1"> {{ object.title }} </a>
 					<ul class="list-unstyled collapse show" id="pageSubmenu1">
-					<li>	{{Classify.synopsis}}	</li>
-					<li><a href="{% url 'browse:collection' Classify.name %}"><span class="fa fa-chevron-right mr-2"></span> Go to collection </a></li>
+					<li>	{{object.synopsis}}	</li>
+					<li><a href="{% url 'browse:collection' object.name %}"><span class="fa fa-chevron-right mr-2"></span> Go to collection </a></li>
 					{% endfor %}
 			</ul>
 		</div>
@@ -19,8 +19,8 @@
 		<div class="div2" id="wrapped">
 		<h3> Speaker </h3>
 			<ul class="list-unstyled components">	
-				{% for speaker in object_list %}	
-				<li><a class="browse" href="collection.html"><span class="fa fa-chevron-right mr-2"></span> {{Person.name}} </a></li>
+				{% for person in speaker %}	
+				<li><a class="browse" href="">{{person.name}} </a></li>
 				{% endfor %}
 			</ul>
 		</div>
