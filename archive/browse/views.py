@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView, ListView, DetailView
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse, FileResponse, Http404
 from django.template import loader
 from .models import Session, Person, Collection, File
 from django.db.models import Count
@@ -82,22 +82,15 @@ class TextView(DetailView):
         return context
     
             
-def videoView(request, collection, session, filetype):
+def mediaView(request, collection, session, filetype):
     # Retrieve the File object based on session and file type
     file = File.objects.filter(session__name=session).filter(type=filetype)
     file = get_object_or_404(file)
 
-    # Serve the video file
+    # Serve the file
     response = FileResponse(file.content)
     return response
 
-def download_file(request, file_id):
-    file = File.objects.filter(id=file_id)
-    file = get_object_or_404(file)
-
-    response = FileResponse(file.content)
-    response['Content-Disposition'] = f'attachment; filename="{file.name}"'
-    return response
 
 def about(request):
     return render(request, "browse/base_home.html")

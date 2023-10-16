@@ -49,17 +49,14 @@
 					<li>
 						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Collection</a>
 						<ul class="list-unstyled collapse show" id="pageSubmenu1">
-							{% for obj in filterCollection %}
-							<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{obj.name}</a></li>
-							{% endfor %}
+							{% filterCollection %}
 						</ul>
 					</li>
 				  	<li>
 						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Genre</a>
 						<ul class="list-unstyled collapse show" id="pageSubmenu1" >
-							{% for obj in filterGenre %}
-							<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{obj.name}</a></li>
-							{% endfor %}
+							{% filterGenre %}
+
 						</ul>
 				  	</li>
 				  	<li>

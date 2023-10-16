@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Session, Collection, File, Person
+from .models import Session, Collection, File, Person, Genre
 
 
 class SessionAdmin(admin.ModelAdmin):
@@ -20,5 +20,10 @@ admin.site.register(Person, PersonAdmin)
 
 class FileAdmin(admin.ModelAdmin):
     list_display = ("name", "type")
-    
+
 admin.site.register(File, FileAdmin)
+
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ("name", "parent_genre")
+
+admin.site.register(Genre, GenreAdmin)

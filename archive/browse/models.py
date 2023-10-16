@@ -71,10 +71,8 @@ class Collection(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        if self.parent == None:
-            return reverse('collection', args=[str(self.name)])
-        else:
-            return reverse('session', args=[str(self.parent), str(self.name)])
+        return reverse('collection', args=[str(self.name)])
+
 
 class Session(models.Model):    
     name = models.CharField(max_length=100, blank=True)

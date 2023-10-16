@@ -9,14 +9,14 @@
 			<div id="loaded_av">
 				{% for object in object_list %}
 				<div class="border-solid" id="av0">
-				<h3> {{ object.session.title }}: {{ object.type }} </h3>
+				<h3><a href="{% url 'browse:detail' collection=object.session.collection session=object.session filetype=object.type %}"> 
+					{{ object.session.title }}: {{ object.type }} </a></h3>
 				<h4>Collection: <a href="{% url 'browse:collection' collection=object.session.collection %}"> {{ object.session.collection.title}} </a></h4>
                 {% if object.type|is_audio_file %}
 				<div class="av-item">
 				<audio controls="" preload="none"><source src=""></audio>
 				</div>
 				{% endif %}
-				<a href="{% url 'browse:detail' collection=object.session.collection session=object.session filetype=object.type %}">See file</a>
 				</div>
 				{% endfor %}
 	</div>
