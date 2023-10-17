@@ -47,31 +47,26 @@
 				</div>
 				<ul class="list-unstyled components">
 					<li>
-						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Collection</a>
-						<ul class="list-unstyled collapse show" id="pageSubmenu1">
+						<a class="dropdown-toggle collapsed">Collection</a>
+						<ul  class="list-unstyled collapse show" id="pageSubmenu1">
 							{% filterCollection %}
 						</ul>
 					</li>
 				  	<li>
-						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Genre</a>
-						<ul class="list-unstyled collapse show" id="pageSubmenu1" >
-							{% filterGenre %}
-
-						</ul>
-				  	</li>
-				  	<li>
-						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Speaker</a>
-				  		<ul class="list-unstyled collapse show" id="pageSubmenu1" >
+						<a class="dropdown-toggle collapsed">Speaker</a>
+				  		<ul class="list-unstyled collapse show" id="pageSubmenu2" >
 							{% filterSpeaker %}
 						</ul>
 				  	</li>
 					<li>
-						<a href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed">Language</a>
-				  		<ul class="list-unstyled collapse show" id="pageSubmenu1" >
+						<a class="dropdown-toggle collapsed">Language</a>
+				  		<ul class="list-unstyled collapse show" id="pageSubmenu3" >
 							{% filterLanguage %}
 						</ul>
 				  	</li>
+					  
 				</ul>
+
 			</nav>
 			{% endblock sidebar %}
 			<div class="content">
@@ -81,7 +76,3 @@
 			</div>
 	</div>
 </body>
-<script>
-$('#Head_1').collapse ('hide');
-$('#Head_2').collapse ('show');
-</script>

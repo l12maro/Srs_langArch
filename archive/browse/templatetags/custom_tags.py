@@ -40,7 +40,7 @@ def filterCollection(as_button=False):
 
 @register.simple_tag
 def filterGenre(as_button=False):
-    list = Genre.objects.filter(parent_genre__isnull=True)
+    list = Genre.objects.filter(parent_genre=None)
     html = []
     for obj in list:
         if as_button:

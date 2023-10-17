@@ -8,10 +8,9 @@
 		<h3> Collection </h3>
 			<ul class="list-unstyled components">
 				{% for object in object_list %}
-				<li><a class="browse" href="#pageSubmenu1" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle collapsed" id="Head_1"> {{ object.title }} </a>
-					<ul class="list-unstyled collapse show" id="pageSubmenu1">
-					<li>	{{object.synopsis}}	</li>
-					<li><a href="{% url 'browse:collection' object.name %}"><span class="fa fa-chevron-right mr-2"></span> Go to collection </a></li>
+				<li><button type="button" onclick="toggleAdvancedOptions()" class="toggle-button"> {{ object.title }} </button>
+					<li id="advanced-options">	{{object.synopsis}}	</li>
+					<li id="advanced-options"><a href="{% url 'browse:collection' object.name %}"><span class="fa fa-chevron-right mr-2"></span> Go to collection </a></li>
 					{% endfor %}
 			</ul>
 		</div>
@@ -25,4 +24,12 @@
 			</ul>
 		</div>
 	</div>
+
+	<script>
+		function toggleAdvancedOptions() {
+		  var advancedOptions = document.getElementById('advanced-options');
+		  advancedOptions.style.display = (advancedOptions.style.display === 'none') ? 'block' : 'none';
+		}
+	</script>
+
 {% endblock %}
