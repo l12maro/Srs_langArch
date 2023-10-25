@@ -3,6 +3,8 @@ from django.urls import resolve
 from browse.models import Collection, Session, Person, Genre, Language, File
 from django.utils.html import escape, mark_safe
 from django.http import FileResponse
+from django.urls import reverse
+
 
 register = template.Library()
 
@@ -52,13 +54,16 @@ def filterGenre(as_button=False):
    
 @register.simple_tag
 def filterSpeaker(as_button=False):
-    list = Person.objects.filter(role="speaker") # For now we consider all people speakers
+    list = Person.objects.filter(role="speaker")
     html = []
     for obj in list:
+        url = reverse('search:results') + f'?speakers={obj.tier}'
         if as_button:
-            html.append(f'<option value={escape(obj.name)}>{escape(obj.name)}</option>')
+            html.append(f'<label for={escape(obj.tier)}>\
+                        <option id=={escape(obj.tier)} value={escape(obj.tier)}>{escape(obj.name)}</option>\
+                        </label>')
         else:
-            html.append(f'<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{escape(obj.name)}</a></li>')
+            html.append(f'<li><a href="{url}">{escape(obj.name)}</a></li>')
     html = "".join(html)
     return mark_safe(html)
 
@@ -87,4 +92,3 @@ def htmlReturn(list):
     html = "".join(html)
     return html
 '''
-    

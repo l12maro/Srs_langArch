@@ -4,11 +4,64 @@
 <!-- Search results -->
     <div class="content">
 			<div id="loaded_av">
-				{% for obj in object_list %}
+				{% if Collection %}
+				<h2 class="result">Collections</h2>
+				{% for obj in Collection %}
+				<div class="border-solid" id="av0">
+					<div class="translation-unit-header">
+						<h3><a href="{% url 'browse:collection' collection=obj.name%}">{{ obj.title}}</a></h3>
+					</div>
+				</div>
+				{% endfor %}
+				{% endif %}
+
+
+				{% if Session %}
+				<h2 class="result">Sessions</h2>
+				{% for obj in Session %}
+				<div class="border-solid" id="av0">
+					<div class="translation-unit-header">
+						<h3><a href="{% url 'browse:session' collection=obj.collection session=obj.name %}">{{ obj.title}}</a></h3>
+						<h4>(from collection <a href="{% url 'browse:collection' collection=obj.collection %}">{{ obj.collection.title}}</a>)</h4>
+					</div>
+				</div>
+				{% endfor %}
+				{% endif %}
+
+
+				{% if Person %}
+				<h2 class="result">People</h2>
+				{% for obj in Person %}
+				<div class="border-solid" id="av0">
+					<div class="translation-unit-header">
+						<h3>{{ obj.name}}</h3>
+						<h4><a href="{% url 'search:results' %}?speakers={{obj.tier}}">See all texts spoken by {{ obj.name}}</a></h4>
+					</div>
+				</div>
+				{% endfor %}
+				{% endif %}
+
+
+				{% if Genre %}
+				<h2 class="result">Genres</h2>
+				{% for obj in Genre %}
+				<div class="border-solid" id="av0">
+					<div class="translation-unit-header">
+						<h3>{{ obj.name}}</h3>
+						<h4><a href="">See all texts classified under {{ obj.name}}</a></h4>
+					</div>
+				</div>
+				{% endfor %}
+				{% endif %}
+
+
+				{% if File %}
+				<h2 class="result">Documents</h2>
+				{% for obj in File %}
 				<div class="border-solid" id="av0">
 				<div class="translation-unit-header">
-					<h3><a href="{% url 'browse:session' collection=obj.collection session=obj.name %}">{{ obj.title}}</a></h3>
-					<h4>(from collection <a href="{% url 'browse:collection' collection=obj.collection %}">{{ obj.collection.title}}</a>)</h4>
+					<h3><a href="{% url 'browse:session' collection=obj.session.collection session=obj.name %}">{{ obj.session.title}}: {{obj.type}}</a></h3>
+					<h4>(from collection <a href="{% url 'browse:collection' collection=obj.session.collection %}">{{ obj.session.collection.title}}</a>)</h4>
 				</div>
 				<div class="translation-unit">
 					<dl class="word">
@@ -44,6 +97,8 @@
 					<p><a href="">See full text</a></p>
 				</div>
 				{% endfor %}
+				{% endif %}
+
 	</div>
 	</div>
 {% endblock %}

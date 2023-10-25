@@ -173,6 +173,11 @@ body, .wrapper {
       box-sizing: border-box;
   }
 
+  .result {
+    text-align: left;
+    font-size: 20px;
+    font-weight: strong;
+  }
   
   .container {
     display: flex;

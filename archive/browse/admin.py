@@ -14,7 +14,7 @@ class CollectionAdmin(admin.ModelAdmin):
 admin.site.register(Collection, CollectionAdmin)
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ("name", "role")
+    list_display = ("name", "tier", "role")
     
 admin.site.register(Person, PersonAdmin)
 

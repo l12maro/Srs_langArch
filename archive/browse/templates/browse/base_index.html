@@ -19,7 +19,7 @@
 		<h3> Speaker </h3>
 			<ul class="list-unstyled components">	
 				{% for person in speaker %}	
-				<li><a class="browse" href="">{{person.name}} </a></li>
+				<li><a class="browse" href="{% url 'search:results' %}?speakers={{ person.tier}}">{{person.name}} </a></li>
 				{% endfor %}
 			</ul>
 		</div>

@@ -39,6 +39,7 @@ class Genre(models.Model):
 # The Person class stores all people speaking or participating on files
 class Person(models.Model):
     name = models.CharField(max_length=100)
+    tier = models.CharField(max_length=5, null=True)
     possibleRoles = [
         ("speaker", "speaker"),
         ("participant", "participant"),
