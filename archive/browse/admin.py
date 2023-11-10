@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Session, Collection, File, Person, Genre
+from .models import Session, Collection, File, Person, Genre, TierReference, Postprocess, TranscriptELAN
 
 
 class SessionAdmin(admin.ModelAdmin):
@@ -25,5 +25,20 @@ admin.site.register(File, FileAdmin)
 
 class GenreAdmin(admin.ModelAdmin):
     list_display = ("name", "parent_genre")
-
+    
 admin.site.register(Genre, GenreAdmin)
+    
+class TierReferenceAdmin(admin.ModelAdmin):
+    list_display = ("transcriptELANfile", "collection", "sourceTierType", "destTierType")
+
+admin.site.register(TierReference, TierReferenceAdmin)
+
+class PostprocessAdmin(admin.ModelAdmin):
+    list_display = ("annotationID", "transcriptELANfile", "annotation", "startTime", "endTime")
+    
+admin.site.register(Postprocess, PostprocessAdmin)
+
+class TranscriptELANAdmin(admin.ModelAdmin):
+    list_display = ("annotationID", "transcriptELANfile", "annotation", "startTime", "endTime", "textType")
+    
+admin.site.register(TranscriptELAN, TranscriptELANAdmin)

@@ -104,3 +104,38 @@ class File(models.Model):
     def __str__(self):
         return self.name
     
+class TierReference(models.Model):
+    transcriptELANfile = models.ForeignKey(File, related_name="file_ref", on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={"type": ".eaf"})
+    collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True, blank=True)
+    sourceTierType = models.CharField(max_length=255, null=True, blank=True)
+    destTierType = models.CharField(max_length=255, null=True, blank=True)
+
+class Postprocess(models.Model):
+    annotationID = models.CharField(max_length=255, blank=True)
+    transcriptELANfile = models.ForeignKey(File, related_name="file_pp", on_delete=models.CASCADE, blank=True)
+    annotation = models.TextField(null=True, blank=True)
+    startTime = models.CharField(max_length=50, blank=True)
+    endTime = models.CharField(max_length=50, blank=True)
+    
+class TranscriptELAN(models.Model):
+    transcriptELANfile = models.ForeignKey(File, related_name="file", on_delete=models.CASCADE, blank=True)
+    video = models.ForeignKey(File, related_name="vid", on_delete=models.SET_NULL, null=True, blank=True)
+    annotationID = models.CharField(max_length=255, blank=True)
+    annotation = models.TextField(blank=True)
+    textType = models.CharField(max_length=255, blank=True)
+    startTime = models.CharField(max_length=50, blank=True)
+    endTime = models.CharField(max_length=50, blank=True)
+    postprocess = models.ManyToManyField(Postprocess, blank=True)
+                                    
+    
+'''
+class TextEAF(models.Model):
+    fileEAF = models.ForeignKey(File, on_delete=models.CASCADE, blank=True)
+    srsTier = models.TextField(blank=True)
+    previousSrsTier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    engTier = models.TextField(blank=True)
+    previousEngTier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    startTime = models.CharField(max_length=50, blank=True)
+    endTime = models.CharField(max_length=50, blank=True)
+    video = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True)
+'''
