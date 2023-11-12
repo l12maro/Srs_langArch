@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.http import HttpResponse
-from .models import Session, Collection, File, Person, Genre, TierReference, Postprocess, TranscriptELAN
+from .models import Session, Collection, File, Person, Genre, TierReference, Postprocess, TranscriptELAN, Language
 
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ("id", "name")
+
+admin.site.register(Language, LanguageAdmin)
 
 class SessionAdmin(admin.ModelAdmin):
     list_display = ("collection", "title", "synopsis")

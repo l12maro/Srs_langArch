@@ -48,20 +48,33 @@
 				<div class="border-solid" id="av0">
 					<div class="translation-unit-header">
 						<h3>{{ obj.name}}</h3>
-						<h4><a href="">See all texts classified under {{ obj.name}}</a></h4>
+						<h4><a href="{% url 'search:results' %}?genre={{obj.name}}">See all texts classified under {{ obj.name}}</a></h4>
 					</div>
 				</div>
 				{% endfor %}
 				{% endif %}
 
-
 				{% if File %}
 				<h2 class="result">Documents</h2>
 				{% for obj in File %}
 				<div class="border-solid" id="av0">
+					<div class="translation-unit-header">
+						<h3><a href="{% url 'browse:session' collection=obj.session.collection session=obj.name %}">{{ obj.session.title}}: {{obj.type}}</a></h3>
+						<h4>(from collection <a href="{% url 'browse:collection' collection=obj.session.collection %}">{{ obj.session.collection.title}}</a>)</h4>
+					</div>
+				</div>
+				{% endfor %}
+				{% endif %}
+
+				{% if TranscriptELAN %}
+				<h2 class="result">Audios</h2>
+				{% for obj in TranscriptELAN %}
+				<div class="border-solid" id="av0">
 				<div class="translation-unit-header">
-					<h3><a href="{% url 'browse:session' collection=obj.session.collection session=obj.name %}">{{ obj.session.title}}: {{obj.type}}</a></h3>
-					<h4>(from collection <a href="{% url 'browse:collection' collection=obj.session.collection %}">{{ obj.session.collection.title}}</a>)</h4>
+					<h3><a href="{% url 'browse:session' collection=obj.transcriptELANfile.session.collection session=obj.transcriptELANfile.session %}">
+						{{ obj.transcriptELANfile.session.title}}</a></h3>
+					<h4>(from collection <a href="{% url 'browse:collection' collection=obj.transcriptELANfile.session.collection %}">
+						{{ obj.transcriptELANfile.session.collection.title}}</a>)</h4>
 				</div>
 				<div class="translation-unit">
 					<dl class="word">
@@ -86,6 +99,7 @@
 					</dl>
 				</div>
 				<p>
+					{{obj.annotation}}
 				"Word for word translation with context."
 				<p>
 				<div class="av-item">
@@ -97,8 +111,24 @@
 					<p><a href="">See full text</a></p>
 				</div>
 				{% endfor %}
+				<div class="pagination">
+					<span class="step-links">
+						{% if TranscriptELAN.has_previous %}
+							<a href="?page=1">&laquo; first</a>
+							<a href="?page={{ all_results.previous_page_number }}">previous</a>
+						{% endif %}
+		
+						<span class="current">
+							Page {{ TranscriptELAN.number }} of {{ TranscriptELAN.paginator.num_pages }}.
+						</span>
+		
+						{% if TranscriptELAN.has_next %}
+							<a href="?page={{ all_results.next_page_number }}">next</a>
+							<a href="?page={{ all_results.paginator.num_pages }}">last &raquo;</a>
+						{% endif %}
+					</span>
+				</div>
 				{% endif %}
-
-	</div>
-	</div>
+    </div>
+</div>
 {% endblock %}

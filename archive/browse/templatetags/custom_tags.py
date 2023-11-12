@@ -33,10 +33,11 @@ def filterCollection(as_button=False):
     list = Collection.objects.all()  # Retrieve objects with parent=None
     html = []
     for obj in list:
+        url = reverse('search:results') + f'?collection={obj.name}'
         if as_button:
             html.append(f'<option value={escape(obj.name)}>{escape(obj.title)}</option>')
         else:
-            html.append(f'<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{escape(obj.title)}</a></li>')
+            html.append(f'<li><a href="{url}">{escape(obj.title)}</a></li>')
     html = "".join(html)
     return mark_safe(html)
 
@@ -45,10 +46,11 @@ def filterGenre(as_button=False):
     list = Genre.objects.filter(parent_genre=None)
     html = []
     for obj in list:
+        url = reverse('search:results') + f'?genre={obj.name}'
         if as_button:
-            html.append(f'<option value={escape(obj.name)}>{escape(obj.name)}</option>')
+            html.append(f'<option value={escape(obj.name)}>{escape(obj.title)}</option>')        
         else:
-            html.append(f'<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{escape(obj.name)}</a></li>')
+            html.append(f'<li><a href="{url}">{escape(obj.name)}</a></li>')
     html = "".join(html)
     return mark_safe(html)
    
@@ -70,7 +72,13 @@ def filterSpeaker(as_button=False):
 
 @register.simple_tag 
 def filterLanguage():
-    list = Language.objects.all() # For now we consider all people speakers
+    list = Language.objects.all()
+    html = []
+    for obj in list:
+        url = reverse('search:results') + f'?language={obj.name}'
+        html.append(f'<li><a href="{url}">{escape(obj.name)}</a></li>')
+    return mark_safe(html)
+
     #content = htmlReturn(list)
     #return mark_safe(content)
 
