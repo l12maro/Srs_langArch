@@ -1,69 +1,64 @@
 {% extends "browse/base.html" %}
+{% load static %}
 {% load custom_tags %}
 {% block sidebar %}
 <nav id="sidebar">
 	<div class="metadata">
-				<section>
-					<p>Download(s)<p>	
-					<ul class="download-list">
-						{% for f in files %}
-						<li><a href="{{f.content.url}}" download updated=""><span class="prefix"></span>{{f.name}}.{{f.type}}</a></li>	
-						{% endfor %}			
-					</ul>
-				</section>
-				<section>
-						<p>Participant(s)</p>
-						<ul>
-							{% for p in object.session.participants.all %}
-							<li><a href="">{{p.name}}</a></li>
-							{% endfor %}
-						</ul>							
-				</section>
+		<section>
+			<p>Download(s)<p>	
+			<ul class="download-list">
+				{% for f in files %}
+				<li><a href="{{f.content.url}}" download updated=""><span class="prefix"></span>{{f.name}}.{{f.type}}</a></li>	
+				{% endfor %}			
+			</ul>
+		</section>
+		
+		<section>
+			<p>Participant(s)</p>
+			<ul>
+				{% for p in object.session.participants.all %}
+				<li><a href="{% url 'search:results' %}?participants={{ p.tier}}">{{p.name}}</a></li>
+				{% endfor %}
+			</ul>							
+		</section>
 				
-										<section>
-						<p>Speaker(s)</p>	
-						<ul>
-							{% for p in object.session.speakers.all %}
-							<li><a href="">{{p.name}}</a></li>
-								{% endfor %}
-						</ul>							
-				</section>
-									
+		<section>
+			<p>Speaker(s)</p>	
+			<ul>				
+				{% for p in object.session.speakers.all %}
+				<li><a href="{% url 'search:results' %}?speakers={{ p.tier}}">{{p.name}}</a></li>
+				{% endfor %}
+			</ul>										
+		</section>					
 				
-				<section>
-					<p>Recording date</p>
-					<ul>
-					<li><a href="">{{ object.session.date }}
-					</a></li>
-					</ul>						
-				</section>
-				
-			</div>
-	
+		<section>
+			<p>Recording date</p>
+			<ul>
+				<li>{{ object.session.date }}</li>
+			</ul>						
+		</section>			
+	</div>
 </nav>
 {% endblock %}
 {%block title%} {% endblock %}
 {%block content%}
     
     <!-- Example page for text -->
-        <h2>{{ object.session.title }}	</h2>
+        <h2>{{ object.name }}.{{ object.type }}	</h2>
 		<h4 class="strong"><a href="{% url 'browse:collection' collection=object.session.collection.name %}"> 
 			{{  object.session.collection.title }}</a>: 
 			<a href="{% url 'browse:session' collection=object.session.collection.name session=object.session.name %}"> 
 				{{ object.session.title }} </a></h4>
+		
+		{% if object.type == 'pdf' or object.type == 'docx' %}
 
-		{% if object.type == 'pdf' %}
-		<embed src="{% returnPDF object.id %}" type="application/pdf" width="100%" height="600px"></a>
+		<iframe
+		src="{% static 'web/viewer.html' %}?file={{ object.content.url }}"
+		width="100%"
+		height="100%"
+		style="border: none;"
+	/></iframe>
 		{% endif %}
-
-		{% if file.type == 'docx' %}
-        <iframe src="{{object.content.url}}" width="100%" height="600px" frameborder="0"></iframe>
-		{% endif %}
-
-		{% if file.type == 'xlsx' %}
-        <iframe src="https://view.officeapps.live.com/op/view.aspx?src={{ object.content.url }}" width="100%" height="600px" frameborder="0"></iframe>
-		{% endif %}		
-
 
 		{% if object.type|is_audio_file or object.type|is_video_file %}
 			<div class="av-item">
@@ -74,13 +69,35 @@
 
 				{% if object.type|is_video_file %}
 				<video controls preload="none" width="640" height="360">
-					<source src="{% url 'browse:media' collection=object.session.collection.name session=object.session filetype=object.type %}"
+					<source src="{% url 'browse:media' collection=object.session.collection.name session=object.session fileid=object.id %}"
 					type="video/mp4">
 					Your browser does not support video display.
 				</video>
+			</div>
 				{% endif %}
+		{% endif %}
 
-				<h4>Tsuut'ina:</h4>
+		{% if object.type == 'eaf' %}
+		<div class="av-item">
+
+			{% if object.video.type|is_audio_file %}
+			<audio controls="" preload="none"><source src="{{ object.video.content.url }}"></audio>
+			{% endif %}
+
+			{% if object.video.type|is_video_file %}
+			<video controls preload="none" width="640" height="360">
+				<source src="{% url 'browse:media' collection=object.session.collection.name session=object.session fileid=object.video.id %}"
+				type="video/mp4">
+				Your browser does not support video display.
+			
+			</video>
+			{% endif %}
+
+		</div>
+
+		<div>
+
+				<h4>Transcription</h4>
 				<script type="text/javascript">
             
 		var idlist = Array();
@@ -104,27 +121,16 @@
                 <div id="frame_karaoke" style="resize: vertical; height: 480px; overflow: auto;">
                     <table class="it table">
                         <tbody><tr class="transcriptTable">
+							{% for ann in obj.srs_text %}
                             <td class="segmentInfo">S1</td>
                             <td class="segmentContent" id="S1">
                                 <div><a href="javascript:playFrom('S1')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
-                                <div class="translation"> Lorem ipsum dolor sit amet,</div><a></a>
+                                <div class="translation"> {{ ann.annotation }} </div><a></a>
                                 <div class="translation"> English translation,</div><a></a></td>
+							{% endfor %}
                         </tr>
-                        <tr class="transcriptTable">
-                            <td class="segmentInfo">S2</td>
-                            <td class="segmentContent hilite" id="S2">
-                                <div><a href="javascript:playFrom('S2')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
-                                <div class="translation">consectetur adipiscing elit.</div><a></a>
-								<div class="translation"> English translation,</div><a></a></td>
-                        </tr>
-                        <tr class="transcriptTable">
-                            <td class="segmentInfo">S3</td>
-                            <td class="segmentContent" id="S3">
-                                <div><a href="javascript:playFrom('S3')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
-                                <div class="translation">Quisque nec pulvinar leo. </div><a></a>
-								<div class="translation"> English translation,</div><a></a></td>
-                        </tr>
-                    </tbody></table>
+                    	</tbody>
+					</table>
                 </div>
 			</div>
                 <script type="text/javascript">
@@ -143,3 +149,6 @@
 		{% endif %}
 						
 	{% endblock %}
+
+					</body>
+					<script src='/lib/webviewer.min.js'></script>

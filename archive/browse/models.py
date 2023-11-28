@@ -5,6 +5,9 @@ from django.forms import CharField, FileInput
 from django.core.validators import MinLengthValidator
 from pathlib import Path
 from django.core.files.base import ContentFile
+from django.contrib.postgres.search import SearchVectorField 
+from django.contrib.postgres.indexes import GinIndex
+
 
 from django.urls import reverse
 
@@ -104,11 +107,6 @@ class File(models.Model):
     def __str__(self):
         return self.name
     
-class TierReference(models.Model):
-    transcriptELANfile = models.ForeignKey(File, related_name="file_ref", on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={"type": ".eaf"})
-    collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True, blank=True)
-    sourceTierType = models.CharField(max_length=255, null=True, blank=True)
-    destTierType = models.CharField(max_length=255, null=True, blank=True)
 
 class Postprocess(models.Model):
     annotationID = models.CharField(max_length=255, blank=True)
@@ -121,11 +119,38 @@ class TranscriptELAN(models.Model):
     transcriptELANfile = models.ForeignKey(File, related_name="file", on_delete=models.CASCADE, blank=True)
     video = models.ForeignKey(File, related_name="vid", on_delete=models.SET_NULL, null=True, blank=True)
     annotationID = models.CharField(max_length=255, blank=True)
-    annotation = models.TextField(blank=True)
+    annotation = models.TextField(blank=True, db_index=True)
+    search_vector = SearchVectorField(null=True)
     textType = models.CharField(max_length=255, blank=True)
     startTime = models.CharField(max_length=50, blank=True)
     endTime = models.CharField(max_length=50, blank=True)
     postprocess = models.ManyToManyField(Postprocess, blank=True)
+    
+    def __str__(self):
+        return self.annotation
+    class Meta:
+        indexes = [
+            GinIndex(fields=["search_vector"]),
+        ]
+    
+class TierReference(models.Model):
+    
+    #Limit choices from destTierType to text, gloss, translation
+    DEST_TIER_TYPE_CHOICES = [
+        ('text', 'text'),
+        ('gloss', 'gloss'),
+        ('translation', 'translation'),
+    ]    
+    
+    #Limit choices from sourceTierType to the tierTypes in TranscriptELAN
+    TRANSCRIPT_ELAN_CHOICES = [
+        (tier_type, tier_type) for tier_type in TranscriptELAN.objects.values_list('textType', flat=True).distinct()
+    ]
+    
+    transcriptELANfile = models.ForeignKey(File, related_name="file_ref", on_delete=models.DO_NOTHING, null=True, blank=True, limit_choices_to={"type": "eaf"})
+    collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, null=True, blank=True)
+    sourceTierType = models.CharField(max_length=255, null=True, blank=True, choices=TRANSCRIPT_ELAN_CHOICES)
+    destTierType = models.CharField(max_length=255, null=True, blank=True, choices=DEST_TIER_TYPE_CHOICES)
                                     
     
 '''

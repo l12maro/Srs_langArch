@@ -77,34 +77,24 @@
 						{{ obj.transcriptELANfile.session.collection.title}}</a>)</h4>
 				</div>
 				<div class="translation-unit">
-					<dl class="word">
-						<dd><a href="">Lorem</a></dd>
-						<dt><a href="">word</a></dt>
-					</dl>
-					<dl class="word">
-						<dd><a href="">ipsum</a></dd>
-						<dt><a href="">for-word</a></dt>
-					</dl>
-					<dl class="word">
-						<dd><a href="">dolor</a></dd>
-						<dt><a href="">translation</a></dt>
-					</dl>
-					<dl class="word">
-						<dd><a href="">sit</a></dd>
-						<dt><a href="">with</a></dt>
-					</dl>
-					<dl class="word">
-						<dd><a href="">amet</a></dd>
-						<dt><a href="">context</a></dt>
-					</dl>
+					{% for key, value in obj.textgloss.items %}
+    					<dl class="word">
+        				<dd><a href="">{{ key }}</a></dd>
+        				{% if value %}
+            				<dt><a href="">{{ value }}</a></dt>
+       					 {% endif %}
+    					</dl>
+					{% endfor %}
+					{{ obj.headline | safe }}
 				</div>
+				{% if obj.translation.annotation %}
 				<p>
-					{{obj.annotation}}
-				"Word for word translation with context."
+					"{{obj.translation.annotation}}"
 				<p>
+				{% endif %}
 				<div class="av-item">
 						<audio controls="" preload="none">
-						<source src="">
+						<source src="{{ obj.audio_fragment_path }}" type="audio/mp3">
 						Your browser does not support the audio element.</audio>
 					</div>
 

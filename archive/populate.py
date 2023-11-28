@@ -1,80 +1,116 @@
-import os
+import os, shutil
 import xml.etree.ElementTree as ET
 from django.db import transaction
 import django
 django.setup()
 
-from browse.models import Collection, Session, File, Language, Person, Genre, TranscriptELAN, Postprocess
+from browse.models import Collection, Session, File, Language, Person, Genre, TranscriptELAN, Postprocess, TierReference
+from django.contrib.postgres.search import SearchVector
 from django.core.files import File as DjangoFile
 from speach import elan
 
+tier_references = []
 
-def parse_xml_coll(xml_path):
+def delete_all_data():
+    '''
+    Function to delete all collection data in the database
+    and associated files stored in the uploads folder
+    '''
+    # Store TierReference values before deleting
+    tier_references = TierReference.objects.all()
+    
+    Collection.objects.all().delete()
+    print("Collection successfully deleted")
+    
+    TierReference.objects.all().delete()
+    
+    folder_path = './uploads'  
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
         try:
-            with open(xml_path, 'r', encoding='utf-8') as xml_file:
-                tree = ET.parse(xml_file)
-                root = tree.getroot()
-                
-                title = root.find('Title')
-                title = title.text if title is not None else ''
-                                    
-                synopsis = root.find('ProjectDescription').text
-                synopsis = synopsis if synopsis is not None else ''
-                
-                #if no languages are specified, we add Tsuut'ina as the default
-                language = root.find('VernacularISO3CodeAndName')
-                if language is not None:
-                    code, _ = language.text.split(':')
-                    language, created = Language.objects.get_or_create(name=code.strip())
-
-                else:
-                    language, created = Language.objects.get_or_create(name="srs")
-                
-                    
-                #if no working languages are specified, we add English as the default
-                wl = root.find('AnalysisISO3CodeAndName')
-                if wl is not None:
-                    code, _ = wl.text.split(':')
-                    wl, created = Language.objects.get_or_create(name=code.strip())
-            
-                else:
-                    wl, created = Language.objects.get_or_create(name="eng")
-
-                loc = root.find('Location')
-                loc = loc.text if loc is not None else ''
-                
-                region = root.find('Region')
-                region = region.text if region is not None else ''
-                
-                country = root.find('Country')
-                country = country.text if country is not None else ''
-
-                continent = root.find('Continent')
-                continent = continent.text if continent is not None else ''
-                
-                access = root.find('AccessProtocol')
-                access = access.text if access is not None else ''
-                    
-                depositor = root.find('Depositor')
-                if depositor is not None:
-                    depositor, created = Person.objects.get_or_create(name=depositor.text, role="depositor")
-                    
-                else: 
-                    depositor, created = Person.objects.get_or_create(name="Unspecified")
-                    
-                contact = root.find('ContactPerson')
-                if contact is not None:
-                    contact, created = Person.objects.get_or_create(name=contact.text, role="contact")
-                    
-                else: 
-                    contact, created = Person.objects.get_or_create(name="Unspecified")
-                    
-                return title, synopsis, language, wl, loc, region, country, continent, access, depositor, contact
-                        
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
         except Exception as e:
-            print(f"Error parsing XML: {e}")
+            print(f"Error deleting file {file_path}: {e}")
+    print("Uploaded files successfully deleted")
+
+    
+def parse_xml_coll(xml_path):
+    '''
+    Function to extract the data stored for a given collection as xml
+    @returns the values stored in the xml file for title, synopsis, language,
+    wl, loc, region, country, continent, access, depositor, contact
+    '''
+    try:
+        with open(xml_path, 'r', encoding='utf-8') as xml_file:
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
+                
+            title = root.find('Title')
+            title = title.text if title is not None else ''
+                                    
+            synopsis = root.find('ProjectDescription').text
+            synopsis = synopsis if synopsis is not None else ''
+                
+            #if no languages are specified, we add Tsuut'ina as the default
+            language = root.find('VernacularISO3CodeAndName')
+            if language is not None:
+                code, _ = language.text.split(':')
+                language, created = Language.objects.get_or_create(name=code.strip())
+
+            else:
+                language, created = Language.objects.get_or_create(name="srs")
+                
+                    
+            #if no working languages are specified, we add English as the default
+            wl = root.find('AnalysisISO3CodeAndName')
+            if wl is not None:
+                code, _ = wl.text.split(':')
+                wl, created = Language.objects.get_or_create(name=code.strip())
+            
+            else:
+                wl, created = Language.objects.get_or_create(name="eng")
+
+            loc = root.find('Location')
+            loc = loc.text if loc is not None else ''
+                
+            region = root.find('Region')
+            region = region.text if region is not None else ''
+                
+            country = root.find('Country')
+            country = country.text if country is not None else ''
+
+            continent = root.find('Continent')
+            continent = continent.text if continent is not None else ''
+                
+            access = root.find('AccessProtocol')
+            access = access.text if access is not None else ''
+                    
+            depositor = root.find('Depositor')
+            if depositor is not None:
+                depositor, created = Person.objects.get_or_create(name=depositor.text, role="depositor")
+                    
+            else: 
+                depositor, created = Person.objects.get_or_create(name="Unspecified")
+                    
+            contact = root.find('ContactPerson')
+            if contact is not None:
+                contact, created = Person.objects.get_or_create(name=contact.text, role="contact")
+                    
+            else: 
+                contact, created = Person.objects.get_or_create(name="Unspecified")
+                    
+            return title, synopsis, language, wl, loc, region, country, continent, access, depositor, contact
+                        
+    except Exception as e:
+        print(f"Error parsing XML: {e}")
 
 def populate_models_from_directory(collection_path):
+    '''
+    Finds all collections in a given path and creates an instance for each
+    of those collections
+    Calls recursively the methods to populate session and people models
+    '''
     # Get the collections directory
     for collection_name in os.listdir(collection_path):
         collection_dir = os.path.join(collection_path, collection_name)
@@ -101,6 +137,8 @@ def populate_models_from_directory(collection_path):
         )
         
         collection.save()
+        
+        print(f"Collection: {title} successfully created")
     
         # Recursively process Session and People directories
         process_sessions(collection, os.path.join(collection_dir, 'Sessions'))
@@ -108,6 +146,10 @@ def populate_models_from_directory(collection_path):
         
 
 def parse_xml_person(xml_path):
+    '''
+    Function to extract the data stored for a given person as xml
+    @returns the values stored in the xml file for name and nickname
+    '''
     try:
         with open(xml_path, 'r', encoding='utf-8') as xml_file:
             tree = ET.parse(xml_file)
@@ -126,7 +168,11 @@ def parse_xml_person(xml_path):
        
 
 def parse_xml_session(xml_path):
-        
+    '''
+    Function to extract the data stored for a given collection as xml
+    @returns the values stored in the xml file for title, langlist, 
+    wllist, genre, subgenre, synopsis, date, speakerlist, participantlist
+    '''
     try:
         with open(xml_path, 'r', encoding='utf-8') as xml_file:
             tree = ET.parse(xml_file)
@@ -210,6 +256,10 @@ def parse_xml_session(xml_path):
             print(f"Error parsing XML: {e}")
  
 def process_people(people_dir):
+    '''
+    Finds all people in a given path and creates an instance for each
+    of those people
+    '''
     for person_name in os.listdir(people_dir):
         person_path = os.path.join(people_dir, person_name)
         if os.path.isdir(person_path):
@@ -228,6 +278,11 @@ def process_people(people_dir):
             
 
 def process_sessions(collection, session_dir):
+    '''
+    Finds all sessions in a given path and creates an instance for each
+    of those sessions
+    Calls recursively the methods to populate the file model
+    '''
     for session_name in os.listdir(session_dir):
         session_path = os.path.join(session_dir, session_name)
         if os.path.isdir(session_path):
@@ -270,6 +325,11 @@ def process_sessions(collection, session_dir):
             process_files(session, session_path)
 
 def process_files(session, session_path):
+    '''
+    Finds all files in a given path and creates an instance for each
+    of those files
+    Calls recursively the methods to populate TranscriptELAN models
+    '''
     
     for file_name in os.listdir(session_path):
         file_path = os.path.join(session_path, file_name)
@@ -277,7 +337,7 @@ def process_files(session, session_path):
         if os.path.isfile(file_path):
 
             # Check if the file is not a session or meta file
-            if not file_name.endswith(('.session', '.meta')):
+            if not file_name.endswith(('.session', '.meta', '.log', '.pfsx')):
                 
                 # Extract the filename without the extension
                 file_base_name, file_extension = os.path.splitext(file_name)
@@ -300,8 +360,12 @@ def process_files(session, session_path):
                 if file_name.endswith('.eaf'):
                     # Extract tiers
                     process_elan_text(file_obj, file_path)
-                    
+
 def store_tier_values(tier, vid, file, postp):
+    '''
+    Finds all annotations in the tiers spoken by a given speaker and 
+    creates an instance for each one of them
+    '''
     for ann in tier:                
         annotationID = ann.ID.rjust(4, ' ')
         annotation = ann.text
@@ -327,7 +391,12 @@ def store_tier_values(tier, vid, file, postp):
                 annotation.postprocess.add(postp[i][1])
 
 def get_postprocess_tier(tier, file):
-    # accessing postprocess annotations
+    '''
+    Finds all annotations in the postprocesstier and creates an instance
+    for each one of them
+    @returns a list of tuples with the annotation and its instance in
+    the database
+    '''
     postprocess = []
     
     for ann in tier:
@@ -350,15 +419,20 @@ def get_postprocess_tier(tier, file):
         postprocess.append((ann, postp))
     
     return postprocess
-    
+
                     
 def process_elan_text(file, file_path):
+    '''
+    Populates the model TranscriptElan based on information of a given
+    .eaf file
+    '''
     speakers = list(file.session.speakers.values_list('tier', flat=True))
     eaf = elan.read_eaf(file_path)
     
     #retrieve name of linked multimedia
     vid_path = eaf.media_path()
     vid_name, vid_type = os.path.splitext(os.path.basename(vid_path))
+    vid_type = vid_type.lstrip('.').lower()
     
     # If not yet uploaded, upload the file content to the database
     with open(vid_path, 'rb') as file_content:
@@ -383,6 +457,26 @@ def process_elan_text(file, file_path):
 
 
 # Usage
+
 collection_path = r'c:\Users\Lorena\Desktop\COLLECTIONS'
-with transaction.atomic():
-    populate_models_from_directory(collection_path)
+
+try:
+    with transaction.atomic():
+        # Call the function to delete all data
+        delete_all_data()
+        populate_models_from_directory(collection_path)
+
+        for tier_reference in tier_references:
+            # Check if the file with the name exists in the new collections or files
+            if Collection.objects.filter(name=tier_reference.collection.name).exists() \
+                or File.objects.filter(name=tier_reference.transcriptELANfile.name).exists():
+                TierReference.objects.create(**tier_reference.__dict__)
+                print("TierReference successfully recreated")
+                
+    #compute_search_vector:
+    searchv = SearchVector('annotation')
+    TranscriptELAN.objects.update(search_vector=searchv)
+
+except Exception as e:
+    print(f"Error during data population: {e}")
+

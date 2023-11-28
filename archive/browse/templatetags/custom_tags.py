@@ -33,7 +33,7 @@ def filterCollection(as_button=False):
     list = Collection.objects.all()  # Retrieve objects with parent=None
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?collection={obj.name}'
+        url = reverse('search:results') + f'?coll={obj.name}'
         if as_button:
             html.append(f'<option value={escape(obj.name)}>{escape(obj.title)}</option>')
         else:
@@ -55,11 +55,11 @@ def filterGenre(as_button=False):
     return mark_safe(html)
    
 @register.simple_tag
-def filterSpeaker(as_button=False):
+def filterSpeaker(as_button=False, **kwargs):
     list = Person.objects.filter(role="speaker")
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?speakers={obj.tier}'
+        url = reverse('search:results') + f'?s={obj.tier}'
         if as_button:
             html.append(f'<label for={escape(obj.tier)}>\
                         <option id=={escape(obj.tier)} value={escape(obj.tier)}>{escape(obj.name)}</option>\
@@ -75,28 +75,8 @@ def filterLanguage():
     list = Language.objects.all()
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?language={obj.name}'
+        url = reverse('search:results') + f'?lang={obj.name}'
         html.append(f'<li><a href="{url}">{escape(obj.name)}</a></li>')
+    html = "".join(html)
     return mark_safe(html)
 
-    #content = htmlReturn(list)
-    #return mark_safe(content)
-
-'''
-#helper function to print all filters   
-def htmlReturn(list):
-    html = []
-    for obj in list:
-        html.append(f'<li><a href=""><span class="fa fa-chevron-right mr-2"></span>{escape(obj.name)}</a></li>')
-    html = "".join(html)
-    return html
-    
-#helper function to print all filters   
-def htmlReturn(list):
-    html = []
-    i = 0
-    for obj in list:
-        html.append(f'<option value={escape(obj.name)}>{escape(names)}</option>')
-    html = "".join(html)
-    return html
-'''

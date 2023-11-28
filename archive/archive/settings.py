@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.postgres',
     'browse.apps.BrowseConfig',
     'search.apps.SearchConfig',
     'django.contrib.admin',
@@ -128,3 +129,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media files
+#MEDIA_URL = 'uploads/'
+MEDIA_ROOT = BASE_DIR
+

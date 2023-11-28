@@ -3,16 +3,15 @@
 {%block content%}
 <div class="content" id="wrappedcontainer">
 	<p> {{ object_list.0.collection.synopsis}} </p>
-		<!-- Populate the search results dynamically -->
-	<div>
+	<div class="container">
 		<h3>Sessions</h3>
-			<div class="grid-container">
+		<div id="loaded_av">
 			{% for obj in object_list %}
-				<div class="grid-item">
-				<h4><a href="{% url 'browse:session' collection=obj.collection.name session=obj.name %}"> {{ obj.title }} </a></h4>
-				</div>
-				{% endfor %}
+			<div class="border-solid" id="av0">
+				<h3><a href="{% url 'browse:session' collection=obj.collection.name session=obj.name %}"> {{ obj.title }} </a></h3>
 			</div>
+			{% endfor %}
+		</div>
 	</div>
 </div>
 	{% endblock %}

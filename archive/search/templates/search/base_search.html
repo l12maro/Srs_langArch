@@ -5,17 +5,17 @@
 	{% block content %}
 	<div class="container-fluid">
         <form action="{% url 'search:results' %}" method="GET">
-			  <input type="text" id="query" name="query" placeholder="Enter your search" required>
+			  <input type="text" id="q" name="q" placeholder="Enter your search" required>
 			  <br>
 			  <button type="button" onclick="insertSpecialCh1()" class="specialc-button">ɫ</button>
 			  <button type="button" onclick="insertSpecialCh2()" class="specialc-button">ʔ</button>
 			  
-			  <label for="language">Language:</label>
+			  <label for="lang">Language:</label>
 			  <label for="srs">
-				<input type="radio" id="srs" name="language" value="srs">Tsuut'ina
+				<input type="radio" id="srs" name="lang" value="srs">Tsuut'ina
 			  </label>
 			  <label for="eng">
-				<input type="radio" id="eng" name="language" value="eng">English
+				<input type="radio" id="eng" name="lang" value="eng">English
 			  </label>
 			  <br>
 			  
@@ -23,19 +23,19 @@
 			  
 			  <div id="advanced-options" class="advanced-options">
 			  
-				  <label for="speakers">Speakers:</label>
-				  <select id="speakers" name="speakers" multiple size="5">
+				  <label for="s">Speakers:</label>
+				  <select id="s" name="s" multiple size="5">
 					{% filterSpeaker True %}
 				</select>
 				  
-				  <label for="collection">Collection:</label>
-				  <select id="collection" name="collection" multiple size="5">
+				  <label for="coll">Collection:</label>
+				  <select id="coll" name="coll" multiple size="5">
 					{% filterCollection True %}
 
 				  </select>
 				  
-				  <label for="where">Match with:</label>
-				  <select id="where" name="where" multiple size="5">
+				  <label for="w">Match with:</label>
+				  <select id="w" name="w" multiple size="5">
 					<option value="text">Text</option>
 					<option value="title">Title</option>
 					<option value="metadata">Metadata</option>

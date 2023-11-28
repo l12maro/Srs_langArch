@@ -8,6 +8,6 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path("<str:collection>/", views.CollectionView.as_view(), name="collection"),
     path("<str:collection>/<str:session>/", views.SessionView.as_view(), name="session"),
-    path("<str:collection>/<str:session>/<str:filetype>", views.TextView.as_view(), name="detail"),
-    path('<str:collection>/<str:session>/<str:filetype>/play', views.mediaView, name='media'),
+    path("<str:collection>/<str:session>/<int:fileid>", views.TextView.as_view(), name="detail"),
+    path('<str:collection>/<str:session>/<int:fileid>/play', views.mediaView, name='media'),
 ]

@@ -2,30 +2,26 @@
 {% load custom_tags %}
 {% block title %}{{ object_list.0.session.title }}{% endblock %}
 {%block content%}
-<div class="content" id="wrappedcontent">
+<div class="content" id="wrappedcontainer">
 		<p>	{{ object_list.0.session.synopsis }} </p>
-	<div>
+	<div class="container">
 		<h3>Material</h3>
 			<div id="loaded_av">
 				{% for object in object_list %}
 				<div class="border-solid" id="av0">
-				<h3><a href="{% url 'browse:detail' collection=object.session.collection session=object.session filetype=object.type %}"> 
-					{{ object.session.title }}: {{ object.type }} </a></h3>
+				<h3><a href="{% url 'browse:detail' collection=object.session.collection session=object.session fileid=object.id %}"> 
+					{{ object.name }}.{{ object.type }} </a></h3>
 				<h4>Collection: <a href="{% url 'browse:collection' collection=object.session.collection %}"> {{ object.session.collection.title}} </a></h4>
                 {% if object.type|is_audio_file %}
 				<div class="av-item">
-				<audio controls="" preload="none"><source src=""></audio>
+				<audio controls="" preload="none"><source src="{{ object.content.url }}"></audio>
 				</div>
 				{% endif %}
 				</div>
 				{% endfor %}
-	</div>
+			</div>
 	</div>
 	{% endblock %}
-</div>
-</div>
-</body>
-
 	<script>
 		function toggleAdvancedOptions() {
 		  var advancedOptions = document.getElementById('advanced-options');
