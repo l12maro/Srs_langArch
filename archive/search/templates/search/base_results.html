@@ -79,17 +79,16 @@
 				<div class="translation-unit">
 					{% for key, value in obj.textgloss.items %}
     					<dl class="word">
-        				<dd><a href="">{{ key }}</a></dd>
+        				<dd><a href="https://gunaha.altlab.dev/search/?q={{key}}" target="_blank">{{ key }}</a></dd>
         				{% if value %}
             				<dt>{{ value }}</dt>
        					 {% endif %}
     					</dl>
 					{% endfor %}
-					{{ obj.headline | safe }}
 				</div>
-				{% if obj.translation.annotation %}
+				{% if obj.translation %}
 				<p>
-					"{{obj.translation.annotation}}"
+					"{{obj.translation}}"
 				<p>
 				{% endif %}
 				<div class="av-item">

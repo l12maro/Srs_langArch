@@ -187,34 +187,10 @@ class SearchResultsView(ListView):
                         queryresult = Session.objects.filter(Q(languages__name=f[1]) | Q(working_languages__name=f[1])).distinct
                         filters = filters[1:]
                         queried = True
-            '''
-                if model == TranscriptELAN:
-                    if f[0] == "coll":
-                        queryresult = TranscriptELAN.objects.filter(transcriptELANfile__session__collection__name=f[1])
-                        filters = filters[1:]
-                        queried = True
-                            
-                    if f[0] == "s":
-                        people = Person.objects.filter(role='speaker')
-                        speaker = people.get(tier=f[1])
-                        queryresult = speaker.ses_speaker.all()
-                        filters = filters[1:]
-                        queried = True
-                        
-                    if f[0] == "genre":
-                        g = Genre.objects.get(transcriptELANfile__session__genre__name=f[1])
-                        queryresult = g.ses_genres.all()
-                        filters = filters[1:]
-                        queried = True
-            '''
                                 
         # When the user is making a textual search, we want to return as many
         # coincidences across models as possible
         if queried == True:
-            # TODO: in text search, we need to make sure that we are taking
-            # the right tier
-            # For different collections and texts, we want different tiers
-            # Based on that, we can apply language filters
             if model == TranscriptELAN:
                 for f in filters:
                     if f[0] == "coll":
@@ -285,6 +261,28 @@ class SearchResultsView(ListView):
             
             
         return tiers["text"], tiers["gloss"], tiers["translation"]
+    
+    def get_aligned_glossing(self, transcript, combined_gloss_filter):
+        gloss = TranscriptELAN.objects.filter(combined_gloss_filter).filter(
+            startTime=transcript.startTime, endTime=transcript.endTime
+            ).exclude(id=transcript.id).first()
+        
+        transcript.text = transcript.annotation.split()
+        transcript.textgloss = {}
+        
+        if gloss:
+            transcript.gloss = gloss.annotation.split()
+        
+            # store word/gloss pairs as a dictionary
+            for i in range(0, len(transcript.text)):
+                transcript.textgloss[transcript.text[i]] = transcript.gloss[i]
+        
+        else:
+            # store word/gloss pairs as a dictionary
+            for i in range(0, len(transcript.text)):
+                transcript.textgloss[transcript.text[i]] = None
+            
+        return transcript.textgloss
                     
     def get_queryset(self, model, **kwargs):      
         '''
@@ -323,6 +321,9 @@ class SearchResultsView(ListView):
                         search_headline = SearchHeadline("annotation", searchq)
                         
                         # We get all the distinct transcripts to search
+                        # TODO: Figure out how to apply additional filters
+                        # if filtered:
+                        #     result_list = self.apply_filters(model, queryresult=eng_result, filters=filters, queried=True)
                         distinct_files = TranscriptELAN.objects.values_list('transcriptELANfile__name', flat=True).distinct()
                         distinct_files = list(distinct_files)
                         
@@ -345,7 +346,6 @@ class SearchResultsView(ListView):
 
                             q = Q(transcriptELANfile__name=file_name) & Q(textType=translation)
                             queriesTranslation.append(q)                            
-                            
                         
                         # Combine the querysets
                         combined_text_filter = reduce(lambda x, y: x | y, queriesText)
@@ -363,34 +363,75 @@ class SearchResultsView(ListView):
                                         eng = False
                                     else:
                                         srs = False
+                                                        
+                        base_dir = settings.MEDIA_ROOT
+                        temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
+                        
 
                         if srs:
                             result_list = model.objects.annotate(headline=search_headline
                                                                 ).filter(combined_text_filter).filter(search_vector=query)
-                            #TODO: get text and gloss 
-
+                                
+                            for transcript in result_list:
+                                # Get glossing if there is any
+                                transcript.textgloss = self.get_aligned_glossing(transcript, combined_gloss_filter)
+                                        
+                                # Get translation
+                                translation = TranscriptELAN.objects.filter(combined_trans_filter).filter(
+                                    startTime=transcript.startTime, endTime=transcript.endTime
+                                    ).exclude(id=transcript.id).first()
+                                
+                                transcript.translation = translation.annotation if translation else None
+                                transcript.audio = self.get_audio(transcript, base_dir, temp_dir)
                             
                             if eng:
                                 eng_result = model.objects.annotate(headline=search_headline
                                                                 ).filter(combined_trans_filter).filter(search_vector=query)
+                                                                
+                                # Get text
+                                for transcript in eng_result:
+                                    transcript.translation = transcript.annotation
+                                    transcript.audio = self.get_audio(transcript, base_dir, temp_dir)
+                                    
+                                    text = TranscriptELAN.objects.filter(combined_text_filter).filter(
+                                    startTime=transcript.startTime, endTime=transcript.endTime
+                                    ).exclude(id=transcript.id).first()
+                                    
+                                    if text:
+                                        transcript.annotation = text.annotation
+                                        transcript.textglossing = self.get_aligned_glossing(transcript, combined_gloss_filter)
+                                        
+                                if len(result_list) > 0:
+                                    result_list = result_list.union(eng_result)
+                                else:
+                                    result_list = eng_result
                                 
-                                result_list = result_list.union(eng_result)
                         else:
                             result_list = model.objects.annotate(headline=search_headline
-                                                            ).filter(combined_trans_filter).filter(search_vector=query)
+                                                            ).filter(combined_trans_filter).filter(search_vector=query)                
                             
-                           
-
-                        if filtered:
-                            result_list = self.apply_filters(model, queryresult=result_list, filters=filters, queried=True)
-                                            
- 
-
+                            for transcript in result_list:
+                                transcript.audio = self.get_audio(transcript, base_dir, temp_dir)
+                                transcript.translation = transcript.annotation
+                                    
+                                text = TranscriptELAN.objects.filter(combined_text_filter).filter(
+                                startTime=transcript.startTime, endTime=transcript.endTime
+                                ).exclude(id=transcript.id).first()
+                                
+                                if text:
+                                    transcript.annotation = text.annotation
+                                    transcript.textglossing = self.get_aligned_glossing(transcript, combined_gloss_filter)
+                                    
+                            
+                                        
+                        '''
                         base_dir = settings.MEDIA_ROOT
                         temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
                                 
                         for transcript in result_list:
                             transcript.audio = self.get_audio(transcript, base_dir, temp_dir)
+                            
+                        '''
                                                       
 
                 if w == "title":
