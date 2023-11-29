@@ -81,7 +81,7 @@
     					<dl class="word">
         				<dd><a href="">{{ key }}</a></dd>
         				{% if value %}
-            				<dt><a href="">{{ value }}</a></dt>
+            				<dt>{{ value }}</dt>
        					 {% endif %}
     					</dl>
 					{% endfor %}
@@ -93,9 +93,13 @@
 				<p>
 				{% endif %}
 				<div class="av-item">
+					{% if obj.audio %}
 						<audio controls="" preload="none">
-						<source src="{{ obj.audio_fragment_path }}" type="audio/mp3">
+						<source src="{{ obj.audio }}" type="audio/mp3">
 						Your browser does not support the audio element.</audio>
+					{% else %}
+						<p>No audio available for this transcript.</p>
+					{% endif %}
 					</div>
 
 					<p><a href="">See full text</a></p>

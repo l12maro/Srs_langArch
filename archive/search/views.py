@@ -1,10 +1,15 @@
 from datetime import timedelta
 import datetime
+from functools import reduce
 import os
+from itertools import chain
 from pathlib import Path
+import shutil
 import subprocess
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+import tempfile
 from archive import settings
+from archive.settings import MEDIA_ROOT, MEDIA_URL
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic import TemplateView, ListView
@@ -38,9 +43,23 @@ class SearchResultsView(ListView):
         
         return context
     
-    def extract_audio_fragment(self, audio_path, start_time, end_time):
+    def cleanup(self, temp_dir):
+        # Clean up temporary files in the specified directory
+        for item_name in os.listdir(temp_dir):
+            item_path = os.path.join(temp_dir, item_name)
+            try:
+                if os.path.isdir(item_path) and item_name.startswith("tmp"):
+                    # Recursively remove the folder
+                    shutil.rmtree(item_path)
+                    print(f"Deleted temporary folder: {item_path}")
+            except Exception as e:
+                print(f"Error deleting temporary folder {item_path}: {e}")
+        
+    def extract_audio_fragment(self, audio_path, temp_dir, start_time, end_time):
+        temp_file = None  # Initialize temp_file outside the try block
         try:
-            temp_file = NamedTemporaryFile(delete=False, suffix='.mp3')
+            print(temp_dir)
+            temp_file = NamedTemporaryFile(delete=False, suffix='.mp3', dir=temp_dir)
 
             # Use ffmpeg to extract the audio fragment and convert it to mp3
             ffmpeg_command = [
@@ -50,9 +69,13 @@ class SearchResultsView(ListView):
                 '-to', str(end_time.total_seconds()),
                 '-q:a', '0',  # Set the audio quality (0 is the highest)
                 '-map', 'a',  # Select the audio stream
+                '-v', '0',
+                '-y',
                 temp_file.name
             ]
             subprocess.run(ffmpeg_command, check=True)
+            
+            print("FILE_NAME: " + temp_file.name)
 
             return temp_file.name  # Return the temporary file path containing the audio fragment in mp3 format
 
@@ -64,7 +87,28 @@ class SearchResultsView(ListView):
         finally:
             # Close and delete the temporary file
             temp_file.close()
-            os.unlink(temp_file.name)
+            #os.unlink(temp_file.name)
+            
+    def get_audio(self, transcript, base_dir, temp_dir):
+        if transcript.video and transcript.startTime and transcript.endTime:
+            v_path = os.path.join('uploads', transcript.video.name + "." + transcript.video.type)
+            audio_path = os.path.join(base_dir, v_path)
+                                                                
+            start_time = transcript.startTime
+            end_time = transcript.endTime
+                                
+            # Convert start_time_str and end_time_str to timedelta objects
+            start_time = parse_duration(start_time)
+            end_time = parse_duration(end_time)
+
+            audio_fragment_path = self.extract_audio_fragment(audio_path, temp_dir, start_time, end_time)
+
+            if audio_fragment_path:
+                relative_path = os.path.relpath(audio_fragment_path, MEDIA_ROOT)
+                relative_path = os.path.join("/uploads", relative_path)
+                return relative_path
+            
+            return None
     
     def get_filters(self):
         '''
@@ -198,6 +242,49 @@ class SearchResultsView(ListView):
             
         return queryresult   
 
+    def get_tiers(self, file_name):
+        
+        def get_from_collection(collection, tierType):
+            # Check if the collection is listed in TierReference
+            tier_reference_entry = TierReference.objects.filter(collection__name=collection).filter(destTierType=tierType).first()
+            return tier_reference_entry
+            
+        # set default values
+        tiers = {
+            "text": "text",
+            "gloss": "gloss",
+            "translation": "translation"
+         }
+        
+        # Check if the file name is listed in TierReference
+        tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name)
+
+        if tier_reference_entry.first():
+            print("yes")
+            for key in tiers:
+                print("destiny tier: " + key)
+                tier_reference_entry.filter(destTierType=key)
+                if tier_reference_entry.first():
+                    tiers[key] = tier_reference_entry.sourceTierType
+                    print("source tier (from file): " + tiers[key])
+                else:
+                    search = get_from_collection(tier_reference_entry.first().collection, key)
+                    if search:
+                        tiers[key] = search.sourceTierType
+                        print("source tier (from collection): " + tiers[key])
+
+
+        # If there is no listing in TierReference, we check the collection
+        else:
+            file = File.objects.filter(name=file_name).first()
+            for key in tiers:
+                search = get_from_collection(file.session.collection, key)
+                if search:
+                    tiers[key] = search.sourceTierType
+                    print("source tier (from collection): " + tiers[key])
+            
+            
+        return tiers["text"], tiers["gloss"], tiers["translation"]
                     
     def get_queryset(self, model, **kwargs):      
         '''
@@ -235,41 +322,76 @@ class SearchResultsView(ListView):
                         searchq = SearchQuery(query)
                         search_headline = SearchHeadline("annotation", searchq)
                         
-                        #first we retrieve the text_types to search
-                        texttype = "text"
-                        glosstype = "gloss"
-                        translationtype = "translation"
+                        # We get all the distinct transcripts to search
+                        distinct_files = TranscriptELAN.objects.values_list('transcriptELANfile__name', flat=True).distinct()
+                        distinct_files = list(distinct_files)
                         
-                        # TODO: get text_types
+                                        
+                        queriesText = []
+                        queriesGlosses = []
+                        queriesTranslation = []
                         
+                        # we search for each file
+                        for file_name in distinct_files:
+                            #get the tier_types
+                            text, gloss, translation = self.get_tiers(file_name)
+
+                            #get the results in the tsuut'ina text
+                            q = Q(transcriptELANfile__name=file_name) & Q(textType=text)
+                            queriesText.append(q)
+                            
+                            q = Q(transcriptELANfile__name=file_name) & Q(textType=gloss)
+                            queriesGlosses.append(q)
+
+                            q = Q(transcriptELANfile__name=file_name) & Q(textType=translation)
+                            queriesTranslation.append(q)                            
+                            
+                        
+                        # Combine the querysets
+                        combined_text_filter = reduce(lambda x, y: x | y, queriesText)
+                        combined_gloss_filter = reduce(lambda x, y: x | y, queriesGlosses)
+                        combined_trans_filter = reduce(lambda x, y: x | y, queriesTranslation)
+                        
+                        srs = True
+                        eng = True
                         if filtered:
                         # First we check if we only want results
                         # in English or in Tsuut'ina or both
                             for f in filters:
                                 if f[0] == "lang":
                                     if f[1] == "srs":
-                                        result_list = model.objects.annotate(headline=search_headline
-                                                                                  ).filter(textType=texttype
-                                                                                           ).filter(search_vector=query)
-                                        if len(filters) > 1:
-                                            result_list = self.apply_filters(model, queryresult=result_list.text, filters=filters, queried=True)
-                                        
-                                    if f[1] == "eng":
-                                        translation = model.objects.annotate(headline=search_headline
-                                                                                         ).filter(textType=translationtype
-                                                                                                  ).filter(search_vector=query)
-                                        if len(filters) > 1:
-                                            translation = self.apply_filters(model, queryresult=result_list, filters=filters, queried=True)
-                                            
-                                        #TODO: get text and gloss 
-                                    break
-                        
-                        else: 
-                            result_list = model.objects.annotate(headline=search_headline).filter(search_vector=query)
+                                        eng = False
+                                    else:
+                                        srs = False
 
+                        if srs:
+                            result_list = model.objects.annotate(headline=search_headline
+                                                                ).filter(combined_text_filter).filter(search_vector=query)
+                            #TODO: get text and gloss 
+
+                            
+                            if eng:
+                                eng_result = model.objects.annotate(headline=search_headline
+                                                                ).filter(combined_trans_filter).filter(search_vector=query)
                                 
-                        # process result_list
-                        
+                                result_list = result_list.union(eng_result)
+                        else:
+                            result_list = model.objects.annotate(headline=search_headline
+                                                            ).filter(combined_trans_filter).filter(search_vector=query)
+                            
+                           
+
+                        if filtered:
+                            result_list = self.apply_filters(model, queryresult=result_list, filters=filters, queried=True)
+                                            
+ 
+
+                        base_dir = settings.MEDIA_ROOT
+                        temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
+                                
+                        for transcript in result_list:
+                            transcript.audio = self.get_audio(transcript, base_dir, temp_dir)
+                                                      
 
                 if w == "title":
                     if model in titleM:
@@ -300,7 +422,11 @@ class SearchResultsView(ListView):
         checks if there are any objects to retrieve
         @returns queryset as context
         '''
-        self.object_list = [] 
+        self.object_list = []
+        #remove the previous temp folders
+        uploads = os.path.join(MEDIA_ROOT, 'uploads')
+        
+        self.cleanup(uploads)
         queryset = self.get_context_data()
 
         # Check if the queryset is empty (no results)
