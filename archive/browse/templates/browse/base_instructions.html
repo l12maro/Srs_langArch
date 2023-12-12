@@ -1,0 +1,56 @@
+{% extends "browse/base.html" %}
+{% block sidebar %} {% endblock %}
+{% block title %} How to use the Tsuut'ina Language Archive {% endblock %}
+{% block content %}
+    <!-- Information about the collection -->
+    <div class="content">
+        <p>There are different functionalities within the Tsuut'ina Language Archive. There are two main ways to interact with the materials: searching and browsing</p>
+        <h3>Search</h3>
+        <p>Users can search for words or sentences that appear within texts using the search function. To use this tool:
+        </p>
+        <ul>
+            <li>
+                Click on "Search" on the navigation bar.
+            </li>
+            <li>
+                Insert the desired word or term on the search button.
+            </li>
+            <li>
+                (Optional) Specify further search requirements, such as the language, or the collection where you want to find the results
+            </li>
+        </ul>
+        <p>
+        The search function looks for close or exact matches to the word that the user is searching for. The elements that are being searched are:
+        </p>
+        <ul>
+            <li><strong>Metadata:</strong> That is, the terms that are used to classify a given element, like date of recording, genre, participants, speakers, etc. Currently we can look for all texts classified under a given language, genre or collection, or with certain speakers, </li>
+            <li><strong>Title:</strong> Namely, the title of collections or sessions within which the different documents are classified.</li>
+            <li><strong>Content: </strong> Currently, we can search for results present in the videos or audios that have been transcribed using ELAN software. There is no content search for other documents that contain no transcription or in other formats, such as pdfs.</li>
+        </ul>
+
+        <h3>Browse</h3>
+        <p> If we are looking for a specific document, we can use the browse section to search for it. The browse section allows us to see the structure within which a document is classified. For example, we can access all documents classified within a given collection, a given session or a given speaker.</p>
+        
+        <h3>Other functionalities</h3>
+        <h4> Generate QR code: </h4>
+        <p>To generate a QR code of a given page, right click and select "Create QR code for this page"</p>
+
+        <h4> Download documents </h4>
+        <p> You can download all documents in a given session by entering one of the documents and selecting the desired document to download from the sidebar menu.</p>        
+        
+    </div>
+    <h2>Contributors</h2>
+    <p>The Tsuut'ina Language archive has been created following co-design practices with collaboration of community members of Tsuut'ina Nation and the academic community. 
+        Special recognition to the community members: </p>
+    <ul>
+        <li>Janelle Crane-Starlight</li>
+        <li>Hanna Bigcrow</li>
+        <li>Beric Manywounds</li>
+    </ul>
+    <p> Many thanks to Prof. Christopher Cox for collaborating in the meetings and supervising the development of this project.</p>
+
+	<h2>How to cite</h2>
+    <p>If you make use of this software for research purposes or publication, please cite as follows:</p>
+    <p>Martín Rodríguez, Lorena. 2023. Tsuut'ina Language Archive. </p>
+
+{% endblock %}

@@ -35,7 +35,7 @@
 				<div class="border-solid" id="av0">
 					<div class="translation-unit-header">
 						<h3>{{ obj.name}}</h3>
-						<h4><a href="{% url 'search:results' %}?speakers={{obj.tier}}">See all texts spoken by {{ obj.name}}</a></h4>
+						<h4><a href="{% url 'search:results' %}?s={{obj.tier}}">See all texts spoken by {{ obj.name}}</a></h4>
 					</div>
 				</div>
 				{% endfor %}
@@ -75,6 +75,7 @@
 						{{ obj.transcriptELANfile.session.title}}</a></h3>
 					<h4>(from collection <a href="{% url 'browse:collection' collection=obj.transcriptELANfile.session.collection %}">
 						{{ obj.transcriptELANfile.session.collection.title}}</a>)</h4>
+					<h4>spoken by <a href="{% url 'search:results' %}?s={{obj.speaker.tier}}">{{ obj.speaker.name }}</a></h4>
 				</div>
 				<div class="translation-unit">
 					{% for key, value in obj.textgloss.items %}
@@ -91,6 +92,7 @@
 					"{{obj.translation}}"
 				<p>
 				{% endif %}
+				<p><a href="{% url 'browse:detail' collection=obj.transcriptELANfile.session.collection session=obj.transcriptELANfile.session fileid=obj.transcriptELANfile.id %}">See full text</a></p>
 				<div class="av-item">
 					{% if obj.audio %}
 						<audio controls="" preload="none">
@@ -100,8 +102,7 @@
 						<p>No audio available for this transcript.</p>
 					{% endif %}
 					</div>
-
-					<p><a href="">See full text</a></p>
+					<a href="{{ obj.audio }}" download updated=""><span class="prefix"></span>Download audio</a>
 				</div>
 				{% endfor %}
 				<div class="pagination">

@@ -1,6 +1,6 @@
 {% extends "browse/base.html" %}
+{% load browse_tags %}
 {% load static %}
-{% load custom_tags %}
 {% block sidebar %}
 <nav id="sidebar">
 	<div class="metadata">
@@ -50,7 +50,7 @@
 			<a href="{% url 'browse:session' collection=object.session.collection.name session=object.session.name %}"> 
 				{{ object.session.title }} </a></h4>
 		
-		{% if object.type == 'pdf' or object.type == 'docx' %}
+		{% if object.type == 'pdf' %}
 
 		<iframe
 		src="{% static 'web/viewer.html' %}?file={{ object.content.url }}"
@@ -64,7 +64,7 @@
 			<div class="av-item">
 
 				{% if object.type|is_audio_file %}
-				<audio controls="" preload="none"><source src=""></audio>
+				<audio controls="" preload="none"><source src="{% url 'browse:media' collection=object.session.collection.name session=object.session fileid=object.id %}"></audio>
 				{% endif %}
 
 				{% if object.type|is_video_file %}
@@ -78,57 +78,33 @@
 		{% endif %}
 
 		{% if object.type == 'eaf' %}
-		<div class="av-item">
-
-			{% if object.video.type|is_audio_file %}
-			<audio controls="" preload="none"><source src="{{ object.video.content.url }}"></audio>
-			{% endif %}
-
-			{% if object.video.type|is_video_file %}
-			<video controls preload="none" width="640" height="360">
-				<source src="{% url 'browse:media' collection=object.session.collection.name session=object.session fileid=object.video.id %}"
-				type="video/mp4">
-				Your browser does not support video display.
-			
-			</video>
-			{% endif %}
-
-		</div>
 
 		<div>
 
 				<h4>Transcription</h4>
-				<script type="text/javascript">
-            
-		var idlist = Array();
-		var timelist_starts = Array();
-		var timelist_ends = Array();
-            
-		
-                    			idlist.push("S1");
-                				timelist_starts.push(0);
-                				timelist_ends.push(9900);
-            				
-                    			idlist.push("S2");
-                				timelist_starts.push(9900);
-                				timelist_ends.push(18500);
-            				
-                    			idlist.push("S3");
-                				timelist_starts.push(18500);
-                				timelist_ends.push(26190);
-            				
-            				</script>
+
                 <div id="frame_karaoke" style="resize: vertical; height: 480px; overflow: auto;">
                     <table class="it table">
-                        <tbody><tr class="transcriptTable">
-							{% for ann in obj.srs_text %}
-                            <td class="segmentInfo">S1</td>
-                            <td class="segmentContent" id="S1">
-                                <div><a href="javascript:playFrom('S1')"><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen"></a></div>
-                                <div class="translation"> {{ ann.annotation }} </div><a></a>
-                                <div class="translation"> English translation,</div><a></a></td>
-							{% endfor %}
+                        <tbody>
+							<script>
+								function play(){
+									
+									 var audio = document.getElementById("audio");
+									 audio.play();
+											   }
+							</script>
+							{% for key, value in object.text.items %}
+							<tr class="transcriptTable">
+                            <td class="segmentInfo">{{ value.start }} - {{ value.end }}</td>
+                            <td class="segmentContent" id={{key}}>
+                            <div><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen" value="PLAY" onclick="play()">
+								<audio id="audio" src="{% getAudio value.transcript %}"></audio>
+							</div>
+                            <div class="translation"> {{ value.srs }} </div>
+                            <div class="translation"> {{ value.eng }} </div></td>
                         </tr>
+						{% endfor %}
+
                     	</tbody>
 					</table>
                 </div>

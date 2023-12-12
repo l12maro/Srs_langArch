@@ -361,30 +361,33 @@ def process_files(session, session_path):
                     # Extract tiers
                     process_elan_text(file_obj, file_path)
 
-def store_tier_values(tier, vid, file, postp):
+def store_tier_values(tier, vid, file, postp, part):
     '''
     Finds all annotations in the tiers spoken by a given speaker and 
     creates an instance for each one of them
     '''
     for ann in tier:                
         annotationID = ann.ID.rjust(4, ' ')
-        annotation = ann.text
+        annotationText = ann.text
         textType = tier.type_ref.ID
         startTime = ann.from_ts
-        endTime = ann.to_ts                
+        endTime = ann.to_ts
+        speaker, created = Person.objects.get_or_create(tier=part)
+                
 
         annotation, created = TranscriptELAN.objects.get_or_create(
             annotationID=annotationID,
             startTime=startTime,
             endTime=endTime, 
-            annotation=annotation,
+            annotation=annotationText,
             transcriptELANfile=file,
             textType=textType,
-            video=vid
+            video=vid,
+            speaker=speaker
         )
         
         annotation.save()
-            
+                    
         #see if there is any postprocess needed
         for i in range(0,len(postp)):
             if postp[i][0].overlap(ann) > 0:
@@ -453,7 +456,7 @@ def process_elan_text(file, file_path):
     
     for tier in eaf:
         if tier.participant in speakers:
-            store_tier_values(tier, vid, file, pp_anns)
+            store_tier_values(tier, vid, file, pp_anns, tier.participant)
 
 
 # Usage

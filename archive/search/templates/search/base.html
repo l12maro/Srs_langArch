@@ -28,6 +28,7 @@
 					<ul class="navbar-nav">
 						{% block menu %}
 						<li><a class="nav-link{% is_active request 'browse:about' %}" href="{% url 'browse:about' %}">About</a></li>
+						<li><a class="nav-link{% is_active request 'browse:how' %}" href="{% url 'browse:how' %}">Instructions</a></li>
 						<li><a class="nav-link{% is_active request 'search:home' %}" href="{% url 'search:home' %}">Search</a></li>
 						<li><a class="nav-link{% is_active request 'search:results' %}" href="{% url 'search:results' %}">Results</a></li>
 						<li><a class="nav-link{% is_active request 'browse:index' %}" href="{% url 'browse:index' %}">Browse</a></li>

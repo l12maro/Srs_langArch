@@ -43,6 +43,6 @@ class PostprocessAdmin(admin.ModelAdmin):
 admin.site.register(Postprocess, PostprocessAdmin)
 
 class TranscriptELANAdmin(admin.ModelAdmin):
-    list_display = ("annotationID", "transcriptELANfile", "annotation", "startTime", "endTime", "textType")
+    list_display = ("annotationID", "transcriptELANfile", "annotation", "startTime", "endTime", "textType", "speaker")
     
 admin.site.register(TranscriptELAN, TranscriptELANAdmin)

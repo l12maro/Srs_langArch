@@ -1,4 +1,7 @@
 import os
+import subprocess
+import tempfile
+from xml.dom.minidom import Document
 from django.conf import settings
 from django.views.generic import TemplateView, ListView, DetailView
 from django.shortcuts import render, get_object_or_404
@@ -7,6 +10,10 @@ from django.template import loader
 from .models import Session, Person, Collection, File, TierReference, TranscriptELAN
 from django.db.models import Count
 from docx2pdf import convert
+import comtypes.client
+from django.utils.dateparse import parse_duration
+from archive.settings import MEDIA_ROOT, MEDIA_URL
+
 
 
 class IndexArchiveView(ListView):
@@ -47,54 +54,58 @@ class TextView(DetailView):
     model = File
     template_name = "browse/base_textpage.html"
     
-    def convert_docx_to_pdf(self, docx_path, pdf_path):
-        try:
-            convert(docx_path, pdf_path)
-            return True
-        except Exception as e:
-            print(f"Error converting DOCX to PDF: {e}")
-            return False
         
-    def get_tier_type(self, obj, tier_type):
-        '''
-        Searches the model TierReference for custom tier types
-        @returns true if custom tier was found, and the desired 
-        custom tierType
-        '''
-        tier = TierReference.objects.filter(transcriptELANfile__name=obj.name, destTierType=tier_type).first()
-        if not tier:
-            tier = TierReference.objects.filter(transcriptELANfile=None, collection__name=obj.session.collection.name, destTierType=tier_type).first()
-            if not tier:
-                return False, tier_type
-            else:
-                #tier = tier.get()
-                tier = tier.sourceTierType
-        else:
-            #tier = tier.get()
-            tier = tier.sourceTierType
+    def get_tiers(self, file_name):
+        
+        def get_from_collection(collection, tierType):
+            # Check if the collection is listed in TierReference
+            tier_reference_entry = TierReference.objects.filter(collection__name=collection).filter(destTierType=tierType).first()
+            return tier_reference_entry
             
-        return True, tier
+        # set default values
+        tiers = {
+            "text": "text",
+            "gloss": "gloss",
+            "translation": "translation"
+         }
+        
+        # Check if the file name is listed in TierReference
+        tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name)
+
+        if tier_reference_entry.first():
+            print("yes")
+            for key in tiers:
+                print("destiny tier: " + key)
+                tier_reference_entry.filter(destTierType=key)
+                if tier_reference_entry.first():
+                    tiers[key] = tier_reference_entry.sourceTierType
+                    print("source tier (from file): " + tiers[key])
+                else:
+                    search = get_from_collection(tier_reference_entry.first().collection, key)
+                    if search:
+                        tiers[key] = search.sourceTierType
+                        print("source tier (from collection): " + tiers[key])
+
+
+        # If there is no listing in TierReference, we check the collection
+        else:
+            file = File.objects.filter(name=file_name).first()
+            for key in tiers:
+                search = get_from_collection(file.session.collection, key)
+                if search:
+                    tiers[key] = search.sourceTierType
+                    print("source tier (from collection): " + tiers[key])
+            
+            
+        return tiers["text"], tiers["gloss"], tiers["translation"]
     
     def get_object(self, queryset=None):
         # Retrieve file
         id = self.kwargs['fileid']  
         obj = File.objects.get(id=id)
+        base_dir = settings.MEDIA_ROOT
+        temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
 
-        # If file is a word or excel document, we want to convert it in pdf first for viewing
-        # TODO: Get this working for word and add excel
-        if obj.type == 'docx':
-            # Assuming object.content.url is the path to the DOCX file
-            docx_path = obj.content.url
-            
-            # Create a temporary PDF file path
-            temp_pdf_path = os.path.join(settings.MEDIA_ROOT, 'temp', f'{obj.name}_temp.pdf')
-
-            # Convert DOCX to PDF
-            success = self.convert_docx_to_pdf(docx_path, temp_pdf_path)
-
-            if success:
-                # Now, you can use the temporary PDF file
-                object.content.url = str(temp_pdf_path)
                 
         # If file is of type eaf, we want to pass all of its (filtered) text
         if obj.type == 'eaf':
@@ -104,16 +115,31 @@ class TextView(DetailView):
             
             # First we find whether there is a match for the file or its collection
             # in our TierReference class. If not, we use default tiers.
-            found, srs = self.get_tier_type(obj, 'text')
-            found, gloss = self.get_tier_type(obj, 'gloss')
-            found, translation = self.get_tier_type(obj, 'translation')
+            text, gloss, translation = self.get_tiers(obj.name)
             
             # Then we get all tsuut'ina text, gloss and translation
-            obj.srs_text = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=srs)
-            obj.gloss_text = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=gloss)
-            obj.eng_text = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=translation)
-
-        
+            srs = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=text)
+            eng = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=translation)
+            
+            text = {}
+            
+            i = 0
+            for e in eng:
+                ts = srs.filter(startTime=e.startTime, endTime=e.endTime).first()
+                
+                if ts:
+                    i += 1
+                    content = {}
+                    content["start"] = e.startTime
+                    content["end"] = e.endTime
+                    content["srs"] = ts.annotation
+                    content["eng"] = e.annotation
+                    content["transcript"] = e
+                    
+                    text[i] = content
+                
+            obj.text = text
+            
         return obj    
         
     def get_context_data(self, **kwargs):
@@ -134,3 +160,6 @@ def mediaView(request, collection, session, fileid):
 
 def about(request):
     return render(request, "browse/base_home.html")
+
+def how(request):
+    return render(request, "browse/base_instructions.html")

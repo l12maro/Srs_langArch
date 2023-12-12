@@ -12,9 +12,6 @@ from django.contrib.postgres.indexes import GinIndex
 from django.urls import reverse
 
 
-# TODO: Edit so that instead of giving an object and then session and collection is added, 
-# we give a collection path and it recursively creates all sessions and files
-
 def currentDir():
     s = r'g:\Unidades compartidas\Tsuutina-Resources\COLLECTIONS'
     return Path(s)
@@ -125,9 +122,11 @@ class TranscriptELAN(models.Model):
     startTime = models.CharField(max_length=50, blank=True)
     endTime = models.CharField(max_length=50, blank=True)
     postprocess = models.ManyToManyField(Postprocess, blank=True)
+    speaker = models.ForeignKey(Person, related_name="spk", on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
         return self.annotation
+    
     class Meta:
         indexes = [
             GinIndex(fields=["search_vector"]),
@@ -152,15 +151,3 @@ class TierReference(models.Model):
     sourceTierType = models.CharField(max_length=255, null=True, blank=True, choices=TRANSCRIPT_ELAN_CHOICES)
     destTierType = models.CharField(max_length=255, null=True, blank=True, choices=DEST_TIER_TYPE_CHOICES)
                                     
-    
-'''
-class TextEAF(models.Model):
-    fileEAF = models.ForeignKey(File, on_delete=models.CASCADE, blank=True)
-    srsTier = models.TextField(blank=True)
-    previousSrsTier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-    engTier = models.TextField(blank=True)
-    previousEngTier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-    startTime = models.CharField(max_length=50, blank=True)
-    endTime = models.CharField(max_length=50, blank=True)
-    video = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True)
-'''

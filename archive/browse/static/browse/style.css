@@ -150,7 +150,7 @@ body, .wrapper {
 	}
 	
     .container {
-		display: inline-block;
+		display: flex;
 		justify-content: center;
 		width: auto;
 		position: absolute;
@@ -165,8 +165,9 @@ body, .wrapper {
 		max-width: 100%;
 	}
 
-	#wrappedcontainer > p {
+	p {
 		display: block;
+		justify-content: center;
 		width:100%;
 		position: absolute
 	}
@@ -182,7 +183,7 @@ body, .wrapper {
 
 	.div1 {
 		flex-grow: 1;
-		display: inline-block;
+		display: flex;
 		position: left;
 		width: auto;
 		max-width: 47%;
@@ -192,7 +193,7 @@ body, .wrapper {
 	
 	.div2 {
 		flex-grow: 1;
-		display: inline-block;
+		display: flex;
 		position: right;
 		width: auto;
 		max-width: 47%;
@@ -202,7 +203,7 @@ body, .wrapper {
 	
 	#wrapped {
 		flex-grow: 1;
-		display: inline-block;
+		display: flex;
 		position: left;
 		width: auto;
 		max-width: 47%;

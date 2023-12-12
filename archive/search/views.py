@@ -16,7 +16,11 @@ from django.views.generic import TemplateView, ListView
 from django.utils.dateparse import parse_duration
 from browse.models import File, Session, Collection, Person, Genre, Postprocess, TierReference, TranscriptELAN, Language
 from django.db.models import Q
-from django.contrib.postgres.search import SearchHeadline, SearchQuery, SearchVector, SearchRank
+from django.contrib.postgres.search import SearchHeadline, SearchQuery
+import qrcode
+from django.http import HttpResponse
+from django.shortcuts import render
+from io import BytesIO
 
 
 class HomePageView(TemplateView):
@@ -236,18 +240,14 @@ class SearchResultsView(ListView):
         tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name)
 
         if tier_reference_entry.first():
-            print("yes")
             for key in tiers:
-                print("destiny tier: " + key)
                 tier_reference_entry.filter(destTierType=key)
                 if tier_reference_entry.first():
                     tiers[key] = tier_reference_entry.sourceTierType
-                    print("source tier (from file): " + tiers[key])
                 else:
                     search = get_from_collection(tier_reference_entry.first().collection, key)
                     if search:
                         tiers[key] = search.sourceTierType
-                        print("source tier (from collection): " + tiers[key])
 
 
         # If there is no listing in TierReference, we check the collection
@@ -257,7 +257,6 @@ class SearchResultsView(ListView):
                 search = get_from_collection(file.session.collection, key)
                 if search:
                     tiers[key] = search.sourceTierType
-                    print("source tier (from collection): " + tiers[key])
             
             
         return tiers["text"], tiers["gloss"], tiers["translation"]
@@ -326,7 +325,6 @@ class SearchResultsView(ListView):
                         #     result_list = self.apply_filters(model, queryresult=eng_result, filters=filters, queried=True)
                         distinct_files = TranscriptELAN.objects.values_list('transcriptELANfile__name', flat=True).distinct()
                         distinct_files = list(distinct_files)
-                        
                                         
                         queriesText = []
                         queriesGlosses = []
