@@ -65,6 +65,12 @@
 							{% filterLanguage %}
 						</ul>
 				  	</li>
+					  <li>
+						<a class="dropdown-toggle collapsed">Genre</a>
+				  		<ul class="list-unstyled collapse show" id="pageSubmenu3" >
+							{% filterGenre %}
+						</ul>
+				  	</li>
 					  
 				</ul>
 			</nav>
@@ -75,4 +81,11 @@
 			{% endblock %}
 		</div>
 </div>
+
+{% block footer %}
+<footer>
+	<p><strong>How to cite:</strong> Martín Rodríguez, Lorena. 2023. Tsuut'ina Language Archive.</p>
+</footer>
+{% endblock %}
+
 </body>

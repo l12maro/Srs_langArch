@@ -16,7 +16,8 @@ register = template.Library()
 @register.simple_tag
 def is_active(request, view_name):
     current_url = resolve(request.path_info).url_name
-    return 'active' if current_url == view_name else ''
+    app, view_name = view_name.split(":")
+    return mark_safe('.active') if current_url == view_name else ''
 
 @register.filter
 def is_audio_file(value):

@@ -1,8 +1,8 @@
 {% extends "browse/base.html" %}
 {% block title %}{{ object_list.0.collection.title }}{% endblock %}
 {%block content%}
-	<p> {{ object_list.0.collection.synopsis}} </p>
 	<div class="content">
+		<p class="synopsis"> {{ object_list.0.collection.synopsis}} </p>
 		<h3>Sessions</h3>
 		<div id="loaded_av">
 			{% for obj in object_list %}

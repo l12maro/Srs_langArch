@@ -42,7 +42,7 @@
 {% endblock %}
 {%block title%} {% endblock %}
 {%block content%}
-    
+<div class="content">
     <!-- Example page for text -->
         <h2>{{ object.name }}.{{ object.type }}	</h2>
 		<h4 class="strong"><a href="{% url 'browse:collection' collection=object.session.collection.name %}"> 
@@ -123,6 +123,7 @@
                             $('.imagemapster').mapster('resize',800,0,1);
                         </script>
 		{% endif %}
+
 						
 	{% endblock %}
 

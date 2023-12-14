@@ -2,8 +2,8 @@
 {% load browse_tags %}
 {% block title %}{{ object_list.0.session.title }}{% endblock %}
 {%block content%}
-<p>	{{ object_list.0.session.synopsis }} </p>
 	<div class="content">
+		<p class="synopsis">	{{ object_list.0.session.synopsis }} </p>
 		<h3>Material</h3>
 			<div id="loaded_av">
 				{% for object in object_list %}

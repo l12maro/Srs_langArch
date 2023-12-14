@@ -5,7 +5,23 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f1f1f1;
+    padding-bottom: 50px;
   }
+
+  /* Footer */
+
+  footer {
+    background-color: #f0f0f0; 
+    padding: 10px;
+    text-align: center;
+    position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  
+    footer p {
+    margin: 0;
+    }
   
   /* Nav-bar */
   

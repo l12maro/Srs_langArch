@@ -1,4 +1,5 @@
 {% extends "browse/base.html" %}
+{% load static %}
 {% block sidebar %} {% endblock %}
 {% block title %} How to use the Tsuut'ina Language Archive {% endblock %}
 {% block content %}
@@ -8,17 +9,20 @@
         <h3>Search</h3>
         <p>Users can search for words or sentences that appear within texts using the search function. To use this tool:
         </p>
-        <ul>
+        <ol>
             <li>
                 Click on "Search" on the navigation bar.
             </li>
+            <img src="{% static 'browse/images/instructions1.png' %}" alt="Search button">
             <li>
                 Insert the desired word or term on the search button.
             </li>
+            <img src="{% static 'browse/images/instructions2.png' %}" alt="Search term">
             <li>
-                (Optional) Specify further search requirements, such as the language, or the collection where you want to find the results
+                (Optional) Click "Advanced Search" to specify further search requirements, such as the language, or the collection where you want to find the results
             </li>
-        </ul>
+            <img src="{% static 'browse/images/instructions3.png' %}" alt="Advanced search">
+        </ol>
         <p>
         The search function looks for close or exact matches to the word that the user is searching for. The elements that are being searched are:
         </p>
@@ -54,3 +58,4 @@
     <p>Martín Rodríguez, Lorena. 2023. Tsuut'ina Language Archive. </p>
 
 {% endblock %}
+
