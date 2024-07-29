@@ -1,5 +1,6 @@
 {% extends "browse/base.html" %}
 {% load browse_tags %}
+{% load qr_code %}
 {% load static %}
 {% block sidebar %}
 <nav id="sidebar">
@@ -17,7 +18,7 @@
 			<p>Participant(s)</p>
 			<ul>
 				{% for p in object.session.participants.all %}
-				<li><a href="{% url 'search:results' %}?participants={{ p.tier}}">{{p.name}}</a></li>
+				<li><a href="{% url 'search:search_results' %}?participants={{ p.tier}}">{{p.name}}</a></li>
 				{% endfor %}
 			</ul>							
 		</section>
@@ -26,7 +27,7 @@
 			<p>Speaker(s)</p>	
 			<ul>				
 				{% for p in object.session.speakers.all %}
-				<li><a href="{% url 'search:results' %}?speakers={{ p.tier}}">{{p.name}}</a></li>
+				<li><a href="{% url 'search:search_results' %}?speakers={{ p.tier}}">{{p.name}}</a></li>
 				{% endfor %}
 			</ul>										
 		</section>					

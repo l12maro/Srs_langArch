@@ -1,4 +1,4 @@
-import os, shutil
+import os
 import xml.etree.ElementTree as ET
 from django.db import transaction
 import django

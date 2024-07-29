@@ -25,7 +25,10 @@ urlpatterns = [
     path('browse/', include('browse.urls', namespace='browse')),
     path('search/', include('search.urls', namespace='search')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', lambda request: redirect('search/', permanent=True)),  # Redirect to /search/.
+    path('', include('qr_code.urls', namespace='qr_code')),
+
 
 ]
 

@@ -1,10 +1,11 @@
 {% extends "search/base.html" %}
+{% load qr_code %}
 {% load custom_tags %}
 {% block sidebar %}{% endblock %}
 {% block title %}Search{% endblock %}	
 	{% block content %}
 	<div class="container-fluid">
-        <form action="{% url 'search:results' %}" method="GET">
+        <form action="{% url 'search:search_results' %}" method="GET">
 			  <input type="text" id="q" name="q" placeholder="Enter your search" required>
 			  <br>
 			  <button type="button" onclick="insertSpecialCh1()" class="specialc-button">ɫ</button>

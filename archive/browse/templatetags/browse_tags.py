@@ -39,7 +39,7 @@ def filterCollection(as_button=False):
     list = Collection.objects.all()  # Retrieve objects with parent=None
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?coll={obj.name}'
+        url = reverse('search:search_results') + f'?coll={obj.name}'
         if as_button:
             html.append(f'<option value={escape(obj.name)}>{escape(obj.title)}</option>')
         else:
@@ -52,7 +52,7 @@ def filterGenre(as_button=False):
     list = Genre.objects.filter(parent_genre=None)
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?genre={obj.name}'
+        url = reverse('search:search_results') + f'?genre={obj.name}'
         if as_button:
             html.append(f'<option value={escape(obj.name)}>{escape(obj.title)}</option>')        
         else:
@@ -65,7 +65,7 @@ def filterSpeaker(as_button=False, **kwargs):
     list = Person.objects.filter(role="speaker")
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?s={obj.tier}'
+        url = reverse('search:search_results') + f'?s={obj.tier}'
         if as_button:
             html.append(f'<label for={escape(obj.tier)}>\
                         <option id=={escape(obj.tier)} value={escape(obj.tier)}>{escape(obj.name)}</option>\
@@ -81,7 +81,7 @@ def filterLanguage():
     list = Language.objects.all()
     html = []
     for obj in list:
-        url = reverse('search:results') + f'?lang={obj.name}'
+        url = reverse('search:search_results') + f'?lang={obj.name}'
         html.append(f'<li><a href="{url}">{escape(obj.name)}</a></li>')
     html = "".join(html)
     return mark_safe(html)

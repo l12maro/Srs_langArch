@@ -1,8 +1,10 @@
 {% extends "browse/base.html" %}
+{% load qr_code %}
 {% block title %}{{ object_list.0.collection.title }}{% endblock %}
 {%block content%}
 	<div class="content">
 		<p class="synopsis"> {{ object_list.0.collection.synopsis}} </p>
+		<img src="{% qr_url_from_data object_list.0.collection.get_absolute_url %}" alt="Current page">
 		<h3>Sessions</h3>
 		<div id="loaded_av">
 			{% for obj in object_list %}

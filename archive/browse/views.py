@@ -1,22 +1,15 @@
 import os
-import subprocess
 import tempfile
-from xml.dom.minidom import Document
 from django.conf import settings
-from django.views.generic import TemplateView, ListView, DetailView
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, FileResponse, Http404
-from django.template import loader
+from django.views.generic import ListView, DetailView
+from django.shortcuts import render
+from django.http import FileResponse
 from .models import Session, Person, Collection, File, TierReference, TranscriptELAN
-from django.db.models import Count
-from docx2pdf import convert
-import comtypes.client
-from django.utils.dateparse import parse_duration
-from archive.settings import MEDIA_ROOT, MEDIA_URL
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-
-class IndexArchiveView(ListView):
+class IndexArchiveView(LoginRequiredMixin, ListView):
     model = Collection
     template_name = "browse/base_index.html"
     
@@ -28,7 +21,7 @@ class IndexArchiveView(ListView):
     def get_queryset(self):
         return Collection.objects.all()
 
-class CollectionView(ListView):
+class CollectionView(LoginRequiredMixin, ListView):
     model = Session
     template_name = 'browse/base_collection.html'  
     context_object_name = 'collection'
@@ -37,7 +30,7 @@ class CollectionView(ListView):
         coll = self.kwargs['collection']
         return Session.objects.filter(collection__name=coll).order_by('name')
     
-class SessionView(ListView):
+class SessionView(LoginRequiredMixin, ListView):
     model = File
     template_name = 'browse/base_session.html'  
     context_object_name = 'session'
@@ -50,11 +43,10 @@ class SessionView(ListView):
 
         return queryset
 
-class TextView(DetailView):
+class TextView(LoginRequiredMixin, DetailView):
     model = File
     template_name = "browse/base_textpage.html"
     
-        
     def get_tiers(self, file_name):
         
         def get_from_collection(collection, tierType):
@@ -73,7 +65,6 @@ class TextView(DetailView):
         tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name)
 
         if tier_reference_entry.first():
-            print("yes")
             for key in tiers:
                 print("destiny tier: " + key)
                 tier_reference_entry.filter(destTierType=key)
@@ -101,8 +92,8 @@ class TextView(DetailView):
     
     def get_object(self, queryset=None):
         # Retrieve file
-        id = self.kwargs['fileid']  
-        obj = File.objects.get(id=id)
+        fileid = self.kwargs['fileid']  
+        obj = File.objects.get(id=fileid)
         base_dir = settings.MEDIA_ROOT
         temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
 
@@ -148,7 +139,7 @@ class TextView(DetailView):
         context['files'] = File.objects.filter(session__name=ses)
         return context
     
-            
+@login_required
 def mediaView(request, collection, session, fileid):    
     # Retrieve the File object 
     obj = File.objects.get(id=fileid)

@@ -163,3 +163,8 @@ cython_debug/
 uploads/
 __azurite_*
 test_*
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

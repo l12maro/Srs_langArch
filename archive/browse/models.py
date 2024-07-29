@@ -1,14 +1,9 @@
 import os
-import xml.etree.ElementTree as ET
 from django.db import models
-from django.forms import CharField, FileInput
 from django.core.validators import MinLengthValidator
 from pathlib import Path
-from django.core.files.base import ContentFile
 from django.contrib.postgres.search import SearchVectorField 
 from django.contrib.postgres.indexes import GinIndex
-
-
 from django.urls import reverse
 
 
@@ -72,7 +67,7 @@ class Collection(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        return reverse('collection', args=[str(self.name)])
+        return reverse('browse:collection', args=[str(self.name)])
 
 
 class Session(models.Model):    
@@ -93,6 +88,9 @@ class Session(models.Model):
     def __str__(self):
         return self.name
     
+    def get_absolute_url(self):
+        return reverse('browse:session', args=[str(self.collection.name), str(self.name)])
+    
 
 class File(models.Model):
     # Define the path where the FileField should store files
@@ -103,6 +101,9 @@ class File(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('browse:detail', args=[str(self.session.collection.name), str(self.session.name), str(self.id)])
     
 
 class Postprocess(models.Model):
@@ -126,6 +127,9 @@ class TranscriptELAN(models.Model):
     
     def __str__(self):
         return self.annotation
+    
+    def get_absolute_url(self):
+        return reverse('search:result', args=[str(self.id)])
     
     class Meta:
         indexes = [

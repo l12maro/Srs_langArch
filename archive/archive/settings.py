@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-!je01cbt1-!o=c%h31y9o=7*2$u^ybw@o5+r$r509t_d4&$&)o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['django-env.eba-epzmf4mm.us-west-2.elasticbeanstalk.com',
+                 '*']
 
 
 # Application definition
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'qr_code'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +60,7 @@ ROOT_URLCONF = 'archive.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +72,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/'
 
 WSGI_APPLICATION = 'archive.wsgi.application'
 
@@ -133,4 +138,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files
 MEDIA_URL = 'uploads/'
 MEDIA_ROOT = BASE_DIR
+SERVE_QR_CODE_IMAGE_PATH = 'qr-code-image/'
 
