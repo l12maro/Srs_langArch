@@ -6,6 +6,10 @@
 <nav id="sidebar">
 	<div class="metadata">
 		<section>
+			<p>QR code</p>
+			<img src="{% qr_url_from_data f.get_absolute_url size=3 version=None image_format='png' %}" alt="Current page" align="center">
+		</section>
+		<section>
 			<p>Download(s)<p>	
 			<ul class="download-list">
 				{% for f in files %}
@@ -44,7 +48,6 @@
 {%block title%} {% endblock %}
 {%block content%}
 <div class="content">
-    <!-- Example page for text -->
         <h2>{{ object.name }}.{{ object.type }}	</h2>
 		<h4 class="strong"><a href="{% url 'browse:collection' collection=object.session.collection.name %}"> 
 			{{  object.session.collection.title }}</a>: 
@@ -56,54 +59,104 @@
 		<iframe
 		src="{% static 'web/viewer.html' %}?file={{ object.content.url }}"
 		width="100%"
-		height="100%"
-		style="border: none;"
+		height="500"
+		style="border: 1px solid black;"
 	/></iframe>
 		{% endif %}
 
 		{% if object.type|is_audio_file or object.type|is_video_file %}
+		{% hasTranscript object.name as exists %}
 			<div class="av-item">
-
+				<!-- Non superusers can only access postprocessed elements -->
 				{% if object.type|is_audio_file %}
-				<audio controls="" preload="none"><source src="{% url 'browse:media' collection=object.session.collection.name session=object.session fileid=object.id %}"></audio>
+					{% if exists %}
+					<audio controls="" preload="metadata"><source src="{% url 'browse:pp-media' fileid=object.id %}"></audio>
+					
+					{% if user.is_superuser %}
+						<audio controls="" preload="metadata"><source src="{% url 'browse:media' fileid=object.id %}"></audio>
+
+					{% endif %}
+
+					{% else %}
+						{% if user.is_superuser %}
+						<audio controls="" preload="metadata"><source src="{% url 'browse:media' fileid=object.id %}"></audio>
+						
+						{% else %}
+
+						<div> You don't have the necessary permissions to accesss this content </div>
+						
+						{% endif %}
+
+					{% endif %}
+				
 				{% endif %}
 
 				{% if object.type|is_video_file %}
-				<video controls preload="none" width="640" height="360">
-					<source src="{% url 'browse:media' collection=object.session.collection.name session=object.session fileid=object.id %}"
-					type="video/mp4">
-					Your browser does not support video display.
-				</video>
+					{% if exists %}
+					<video controls preload="metadata" width="640" height="360">
+						<source src="{% url 'browse:pp-media' fileid=object.id %}"
+						type="video/mp4">
+						Your browser does not support video display.
+					</video>
+
+						{% if user.is_superuser %}
+							<video controls preload="metadata" width="640" height="360">
+								<source src="{% url 'browse:media' fileid=object.id %}"
+								type="video/mp4">
+								Your browser does not support video display.
+							</video>
+						{% endif %}
+
+
+					{% else %}
+						{% if user.is_superuser %}
+							<video controls preload="metadata" width="640" height="360">
+								<source src="{% url 'browse:media' fileid=object.id %}"
+								type="video/mp4">
+								Your browser does not support video display.
+							</video>
+						
+						{% else %}
+
+							<div> You don't have the necessary permissions to accesss this content </div>
+						
+						{% endif %}
+
+				{% endif %}
 			</div>
 				{% endif %}
 		{% endif %}
 
 		{% if object.type == 'eaf' %}
 
-		<div>
-
+		<div id="loaded_av">
+			<div class="av-item">
+			<audio controls="" preload="metadata"><source src="{% url 'browse:media' fileid=object.video.id %}"></audio>
+			</div>
 				<h4>Transcription</h4>
-
                 <div id="frame_karaoke" style="resize: vertical; height: 480px; overflow: auto;">
                     <table class="it table">
                         <tbody>
-							<script>
-								function play(){
-									
-									 var audio = document.getElementById("audio");
-									 audio.play();
-											   }
-							</script>
 							{% for key, value in object.text.items %}
+							{% url 'browse:segment' resultid=key as segment_url %}
 							<tr class="transcriptTable">
-                            <td class="segmentInfo">{{ value.start }} - {{ value.end }}</td>
-                            <td class="segmentContent" id={{key}}>
-                            <div><img src="https://cocoon.huma-num.fr/exist/crdo/img/play.gif" alt="listen" value="PLAY" onclick="play()">
-								<audio id="audio" src="{% getAudio value.transcript %}"></audio>
-							</div>
-                            <div class="translation"> {{ value.srs }} </div>
-                            <div class="translation"> {{ value.eng }} </div></td>
-                        </tr>
+                            <td class="segmentInfo" style="width: 23%; border-right: 1px solid grey;">
+								<div>{{ value.start }} - {{ value.end }}</div>
+								<div><a href="{% url 'search:result' resultid=value.id %}">See more</a></div>
+							</td>
+                            <td class="segmentContent" id={{key}} style="width: 60%; ">
+                            <div class="translation" style="font-weight: bold;"> {{ value.srs }} </div>
+							{% if value.eng %}
+                            <div class="translation"> {{ value.eng }} </div>
+							{% endif %}
+							</td>
+							<td class="audio" style="width: 22%;">
+								<div class="av-item">
+								<audio controls="" preload="none"><source src="{{segment_url}}" type="audio/mp3">
+									Your browser does not support the audio element</audio>
+								</div>
+							</td>
+                        	</tr>
 						{% endfor %}
 
                     	</tbody>
@@ -114,14 +167,6 @@
                             $('#frame_karaoke').mousedown(function(e){
                               clickedOnScrollbar(e.clientX);
                             });
-                        	$('.imagemapster').mapster({
-                                fillColor: 'F09415',
-                                fillOpacity: 0.3
-                            });
-                            window.onresize = function() {
-                                $('.imagemapster').mapster('resize',$('#imgdiv').width(),0,1);
-                            };
-                            $('.imagemapster').mapster('resize',800,0,1);
                         </script>
 		{% endif %}
 

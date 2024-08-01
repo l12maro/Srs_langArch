@@ -3,10 +3,12 @@
 {% block title %}{{ object_list.0.collection.title }}{% endblock %}
 {%block content%}
 	<div class="content">
-		<p class="synopsis"> {{ object_list.0.collection.synopsis}} </p>
-		<img src="{% qr_url_from_data object_list.0.collection.get_absolute_url %}" alt="Current page">
-		<h3>Sessions</h3>
 		<div id="loaded_av">
+			<div class="no-border">
+			<img src="{% qr_url_from_data object_list.0.collection.get_absolute_url size=2 version=None image_format='png' %}" alt="Current page", align="right">
+			<div> {{ object_list.0.collection.synopsis}} </div>
+			</div>
+			<h3>Sessions</h3>
 			{% for obj in object_list %}
 			<div class="border-solid" id="av0">
 				<h3><a href="{% url 'browse:session' collection=obj.collection.name session=obj.name %}"> {{ obj.title }} </a></h3>

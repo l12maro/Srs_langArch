@@ -226,6 +226,13 @@ body, .wrapper {
   }
     
   /* list of objects */
+  #synopsis {
+    margin: 0;
+    padding: 10px;
+    position: absolute;
+    width: 50%;
+    
+  }
   
   #loaded_av {
   margin: 0;

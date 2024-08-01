@@ -256,6 +256,16 @@ body, .wrapper {
   text-align: center; 
   }
 
+  .no-border {
+    padding-top: 10px;
+    border: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 10px;	
+    width:100%;
+}
+
   .border-solid {
       padding-top: 10px;
       border: 1px solid black;

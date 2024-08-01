@@ -20,10 +20,8 @@ class ResultView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         transcript_id = self.kwargs['resultid']
-        
-        result = []
-        
-        combined_text_filter, combined_gloss_filter, combined_trans_filter = get_querysets()
+                
+        combined_text_filter, _ , combined_trans_filter = get_querysets()
         
         srs = TranscriptELAN.objects.filter(combined_text_filter).filter(id=transcript_id).first()
         
@@ -38,11 +36,9 @@ class ResultView(LoginRequiredMixin, ListView):
         return transcript
     
 class SearchResultsView(LoginRequiredMixin, ListView):
-    model = TranscriptELAN
     template_name = 'search\\base_search_results.html'
     context_object_name = 'search_results'
-    paginate_by=5
-    
+
     def get_context_data(self, **kwargs):
         '''
         creates a context entry for each of the models to be searched
@@ -54,9 +50,9 @@ class SearchResultsView(LoginRequiredMixin, ListView):
         context = super(SearchResultsView, self).get_context_data(**kwargs)
 
         for i in range(0, len(models)):
-            context[names[i]] = self.get_queryset(model=models[i])
+            context[names[i]] = self.get_queryset(models[i])
         
-        return context
+        return context, names
     
     def get_filters(self):
         '''
@@ -260,8 +256,7 @@ class SearchResultsView(LoginRequiredMixin, ListView):
                         result_list = model.objects.filter(Q(name__icontains=query)).filter(Q(role="speaker"))
                     
                     if filtered:
-                        result_list = self.apply_filters(model, queryresult=result_list, filters=filters, queried=True)
-                        
+                        result_list = self.apply_filters(model, queryresult=result_list, filters=filters, queried=True)       
             
             return result_list
             
@@ -275,15 +270,14 @@ class SearchResultsView(LoginRequiredMixin, ListView):
         self.object_list = []
         #remove the previous temp folders
         uploads = os.path.join(MEDIA_ROOT, 'uploads')
-        
         cleanup(uploads)
-        queryset = self.get_context_data()
+
+        
+        queryset, names = self.get_context_data()
 
         # Check if the queryset is empty (no results)
         if not queryset:
             return render(request, self.template_name, context={'search_results': None})
         
-        # Pass the results to the template
-        #return super().get(request, *args, **kwargs)
         return render(request, self.template_name, context=queryset)
 

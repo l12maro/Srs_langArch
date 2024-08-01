@@ -10,5 +10,7 @@ urlpatterns = [
     path("<str:collection>/", views.CollectionView.as_view(), name="collection"),
     path("<str:collection>/<str:session>/", views.SessionView.as_view(), name="session"),
     path("<str:collection>/<str:session>/<int:fileid>", views.TextView.as_view(), name="detail"),
-    path('<str:collection>/<str:session>/<int:fileid>/play', views.mediaView, name='media'),
+    path('<int:fileid>/play', views.mediaView, name='media'),
+    path('<int:fileid>/play-pp', views.ppMediaView, name='pp-media'),
+    path('<int:resultid>/play-segment', views.segmentView, name='segment'),
 ]

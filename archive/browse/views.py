@@ -1,12 +1,14 @@
 import os
 import tempfile
+from wsgiref.util import FileWrapper
 from django.conf import settings
 from django.views.generic import ListView, DetailView
 from django.shortcuts import render
 from django.http import FileResponse
-from .models import Session, Person, Collection, File, TierReference, TranscriptELAN
+from .models import Session, Person, Collection, File, TranscriptELAN
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from search.helpers import *
 
 
 class IndexArchiveView(LoginRequiredMixin, ListView):
@@ -47,49 +49,6 @@ class TextView(LoginRequiredMixin, DetailView):
     model = File
     template_name = "browse/base_textpage.html"
     
-    def get_tiers(self, file_name):
-        
-        def get_from_collection(collection, tierType):
-            # Check if the collection is listed in TierReference
-            tier_reference_entry = TierReference.objects.filter(collection__name=collection).filter(destTierType=tierType).first()
-            return tier_reference_entry
-            
-        # set default values
-        tiers = {
-            "text": "text",
-            "gloss": "gloss",
-            "translation": "translation"
-         }
-        
-        # Check if the file name is listed in TierReference
-        tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name)
-
-        if tier_reference_entry.first():
-            for key in tiers:
-                print("destiny tier: " + key)
-                tier_reference_entry.filter(destTierType=key)
-                if tier_reference_entry.first():
-                    tiers[key] = tier_reference_entry.sourceTierType
-                    print("source tier (from file): " + tiers[key])
-                else:
-                    search = get_from_collection(tier_reference_entry.first().collection, key)
-                    if search:
-                        tiers[key] = search.sourceTierType
-                        print("source tier (from collection): " + tiers[key])
-
-
-        # If there is no listing in TierReference, we check the collection
-        else:
-            file = File.objects.filter(name=file_name).first()
-            for key in tiers:
-                search = get_from_collection(file.session.collection, key)
-                if search:
-                    tiers[key] = search.sourceTierType
-                    print("source tier (from collection): " + tiers[key])
-            
-            
-        return tiers["text"], tiers["gloss"], tiers["translation"]
-    
     def get_object(self, queryset=None):
         # Retrieve file
         fileid = self.kwargs['fileid']  
@@ -106,28 +65,34 @@ class TextView(LoginRequiredMixin, DetailView):
             
             # First we find whether there is a match for the file or its collection
             # in our TierReference class. If not, we use default tiers.
-            text, gloss, translation = self.get_tiers(obj.name)
+            tiers = {
+                "text": "text",
+                "translation": "translation"
+            }
+            tiers = get_tiers(obj.name, tiers=tiers)
+            text = tiers["text"]
+            translation = tiers["translation"]
             
             # Then we get all tsuut'ina text, gloss and translation
             srs = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=text)
-            eng = TranscriptELAN.objects.filter(transcriptELANfile__name=obj.name, textType=translation)
             
             text = {}
             
-            i = 0
-            for e in eng:
-                ts = srs.filter(startTime=e.startTime, endTime=e.endTime).first()
+            for result in srs:
+                eng = TranscriptELAN.objects.filter(
+                    transcriptELANfile__name=obj.name, textType=translation).filter(
+                    startTime=result.startTime, endTime=result.endTime).first()
                 
-                if ts:
-                    i += 1
-                    content = {}
-                    content["start"] = e.startTime
-                    content["end"] = e.endTime
-                    content["srs"] = ts.annotation
-                    content["eng"] = e.annotation
-                    content["transcript"] = e
+                content = {}
+                content["id"] = result.id
+                content["start"] = result.startTime
+                content["end"] = result.endTime
+                content["srs"] = result.annotation
+                
+                if eng:
+                    content["eng"] = eng.annotation
                     
-                    text[i] = content
+                text[result.id] = content
                 
             obj.text = text
             
@@ -140,12 +105,40 @@ class TextView(LoginRequiredMixin, DetailView):
         return context
     
 @login_required
-def mediaView(request, collection, session, fileid):    
+def mediaView(request, fileid):    
     # Retrieve the File object 
     obj = File.objects.get(id=fileid)
 
     # Serve the file
     response = FileResponse(obj.content)
+        
+    return response
+
+@login_required
+def ppMediaView(request, fileid):
+    uploads = os.path.join(MEDIA_ROOT, 'uploads')
+    cleanup(uploads)
+    
+    # Retrieve the File object 
+    obj = File.objects.get(id=fileid)
+    
+    pp = get_postprocessed_media(obj)
+    print("got it")
+
+    # Serve the file
+    return FileResponse(FileWrapper(pp))
+        
+@login_required
+def segmentView(request, resultid):    
+    uploads = os.path.join(MEDIA_ROOT, 'uploads')
+    cleanup(uploads)
+    
+    transcript = TranscriptELAN.objects.get(id=resultid)
+    
+    # Get segment
+    response = FileResponse(FileWrapper(get_audio(transcript)))
+    
+    
     return response
 
 

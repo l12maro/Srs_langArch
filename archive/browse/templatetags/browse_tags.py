@@ -30,9 +30,11 @@ def is_video_file(value):
     return value.lower() in audio_extensions
 
 @register.simple_tag
-def returnPDF(id):
-    file = File.objects.get(pk=id)
-    return FileResponse(file.content, content_type='application/pdf')
+def hasTranscript(filename):
+    elan_file = File.objects.filter(name=filename, type='eaf').first()
+    if elan_file:
+        return True
+    return False
 
 @register.simple_tag
 def filterCollection(as_button=False):
@@ -85,55 +87,4 @@ def filterLanguage():
         html.append(f'<li><a href="{url}">{escape(obj.name)}</a></li>')
     html = "".join(html)
     return mark_safe(html)
-
-@register.simple_tag
-def getAudio(transcript):                    
-    base_dir = settings.MEDIA_ROOT
-    temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
-    
-    if transcript.video and transcript.startTime and transcript.endTime:
-        v_path = os.path.join('uploads', transcript.video.name + "." + transcript.video.type)
-        audio_path = os.path.join(base_dir, v_path)
-                                                            
-        start_time = transcript.startTime
-        end_time = transcript.endTime
-                            
-        # Convert start_time_str and end_time_str to timedelta objects
-        start_time = parse_duration(start_time)
-        end_time = parse_duration(end_time)
-        
-        temp_file = None  # Initialize temp_file outside the try block
-        try:
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3', dir=temp_dir)
-
-            # Use ffmpeg to extract the audio fragment and convert it to mp3
-            ffmpeg_command = [
-                'ffmpeg',
-                '-i', audio_path,
-                '-ss', str(start_time.total_seconds()),
-                '-to', str(end_time.total_seconds()),
-                '-q:a', '0',  # Set the audio quality (0 is the highest)
-                '-map', 'a',  # Select the audio stream
-                '-v', '0',
-                '-y',
-                temp_file.name
-            ]
-            subprocess.run(ffmpeg_command, check=True)
-            
-            print("FILE_NAME: " + temp_file.name)
-
-            audio_fragment_path = temp_file.name  # Return the temporary file path containing the audio fragment in mp3 format
-
-        except subprocess.CalledProcessError as e:
-            # Handle errors if ffmpeg command fails
-            print(f"Error extracting audio fragment: {e}")
-            return None
-
-        finally:
-            # Close and delete the temporary file
-            temp_file.close()
-            if audio_fragment_path:
-                relative_path = os.path.relpath(audio_fragment_path, settings.MEDIA_ROOT)
-                relative_path = os.path.join("/uploads", relative_path)
-                return relative_path
         
