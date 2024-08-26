@@ -99,7 +99,7 @@
 						Your browser does not support video display.
 					</video>
 
-						{% if user.is_superuser %}
+						{% if user.is_superuser or user.is_staff %}
 							<video controls preload="metadata" width="640" height="360">
 								<source src="{% url 'browse:media' fileid=object.id %}"
 								type="video/mp4">
@@ -109,7 +109,7 @@
 
 
 					{% else %}
-						{% if user.is_superuser %}
+						{% if user.is_superuser or user.is_staff %}
 							<video controls preload="metadata" width="640" height="360">
 								<source src="{% url 'browse:media' fileid=object.id %}"
 								type="video/mp4">

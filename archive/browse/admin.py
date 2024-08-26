@@ -1,5 +1,16 @@
 from django.contrib import admin
-from .models import Session, Collection, File, Person, Genre, TierReference, Postprocess, TranscriptELAN, Language
+from django.contrib.auth.admin import UserAdmin
+from .models import Session, Collection, File, Person, Genre, TierReference, Postprocess, TranscriptELAN, Language, DataSource, User
+
+class CustomUserAdmin(UserAdmin):
+    pass
+    
+admin.site.register(User, CustomUserAdmin)
+
+class DataSourceAdmin(admin.ModelAdmin):
+    list_display = ("path", "store", "overwrite")
+
+admin.site.register(DataSource, DataSourceAdmin)
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ("id", "name")

@@ -39,6 +39,9 @@
 						<li><a href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>
 					  {% else %}
 						<li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+					  {% endif %}
+					  {% if user.is_staff or user.is_superuser %}
+					  	<li><a class="nav-link{% is_active request 'admin:index' %}" href="{% url 'admin:index' %}">Admin</a></li>
 					  {% endif %}					
 					</div>
 				</div>

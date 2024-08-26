@@ -3,7 +3,7 @@ import tempfile
 from wsgiref.util import FileWrapper
 from django.conf import settings
 from django.views.generic import ListView, DetailView
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import FileResponse
 from .models import Session, Person, Collection, File, TranscriptELAN
 from django.contrib.auth.decorators import login_required
@@ -40,10 +40,10 @@ class SessionView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         coll = self.kwargs['collection']
         ses = self.kwargs['session']
-        #TODO: How to filter from collection when collection is not refered in File
-        queryset = File.objects.filter(session__name=ses)            
+        queryset = File.objects.filter(session__name=ses, session__collection__name=coll)            
 
         return queryset
+
 
 class TextView(LoginRequiredMixin, DetailView):
     model = File
@@ -53,9 +53,6 @@ class TextView(LoginRequiredMixin, DetailView):
         # Retrieve file
         fileid = self.kwargs['fileid']  
         obj = File.objects.get(id=fileid)
-        base_dir = settings.MEDIA_ROOT
-        temp_dir = tempfile.mkdtemp(dir=os.path.join(base_dir, 'uploads'))
-
                 
         # If file is of type eaf, we want to pass all of its (filtered) text
         if obj.type == 'eaf':
@@ -96,7 +93,12 @@ class TextView(LoginRequiredMixin, DetailView):
                 
             obj.text = text
             
-        return obj    
+        return obj
+    
+    def get(self, request, *args, **kwargs):
+        # Check if the user is a superuser
+        if request.user.is_superuser or request.user.is_staff:
+            return super().get(request, *args, **kwargs)
         
     def get_context_data(self, **kwargs):
         ses = self.kwargs['session']
@@ -123,7 +125,6 @@ def ppMediaView(request, fileid):
     obj = File.objects.get(id=fileid)
     
     pp = get_postprocessed_media(obj)
-    print("got it")
 
     # Serve the file
     return FileResponse(FileWrapper(pp))

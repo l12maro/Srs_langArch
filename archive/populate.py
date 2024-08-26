@@ -8,19 +8,67 @@ from browse.models import Collection, Session, File, Language, Person, Genre, Tr
 from django.contrib.postgres.search import SearchVector
 from django.core.files import File as DjangoFile
 from speach import elan
+from logging import getLogger, basicConfig, INFO
 
-tier_references = []
+basicConfig(level=INFO)
+logger = getLogger(__name__)
+
+def store_tier_references():
+    """
+    Function to store all Tier Reference values in the database
+    """
+    tier_references = []
+    # Store TierReference values before deleting    
+    objects = TierReference.objects.all()
+    
+    for obj in objects:
+    # Create a dictionary for each object
+        obj_dict = {
+            'file': obj.transcriptELANfile.name if obj.transcriptELANfile else None,
+            'collection': obj.collection.name if obj.collection else None,
+            'source': obj.sourceTierType,
+            'dest': obj.destTierType
+        }
+        
+        tier_references.append(obj_dict)
+    
+    logger.info(str(len(tier_references))+ " Tier Reference objects stored")
+    
+    return tier_references
+
+def repopulate_tier_references(tier_references: list):
+    """
+    This function uses the Tier Reference values stored by store_tier_references
+    to repopulate the fields if the overwritten data includes same collection/files
+    """
+    for tier_reference in tier_references:
+        # Check if the file with the name exists in the new collections or files
+        object = File.objects.filter(name=tier_reference['file'], type="eaf").first()
+        if object:
+            TierReference.objects.create(
+                transcriptELANfile=object,
+                sourceTierType=tier_reference['source'],
+                destTierType=tier_reference['dest']
+                )
+            logger.info(f"TierReference for file {tier_reference['file']} successfully recreated")
+                    
+        else:
+            object = Collection.objects.filter(name=tier_reference['collection']).first()
+            if object: 
+                TierReference.objects.create(
+                    collection=object,
+                    sourceTierType=tier_reference['source'],
+                    destTierType=tier_reference['dest']
+                    )
+                logger.info(f"TierReference for collection {tier_reference['collection']} successfully recreated")
 
 def delete_all_data():
-    '''
+    """
     Function to delete all collection data in the database
     and associated files stored in the uploads folder
-    '''
-    # Store TierReference values before deleting
-    tier_references = TierReference.objects.all()
-    
+    """    
     Collection.objects.all().delete()
-    print("Collection successfully deleted")
+    logger.info("Collections successfully deleted")
     
     TierReference.objects.all().delete()
     
@@ -31,16 +79,16 @@ def delete_all_data():
             if os.path.isfile(file_path):
                 os.unlink(file_path)
         except Exception as e:
-            print(f"Error deleting file {file_path}: {e}")
-    print("Uploaded files successfully deleted")
+            logger.critical(e)
 
+    logger.info("Uploaded files successfully deleted")
     
 def parse_xml_coll(xml_path):
-    '''
+    """
     Function to extract the data stored for a given collection as xml
     @returns the values stored in the xml file for title, synopsis, language,
     wl, loc, region, country, continent, access, depositor, contact
-    '''
+    """
     try:
         with open(xml_path, 'r', encoding='utf-8') as xml_file:
             tree = ET.parse(xml_file)
@@ -103,9 +151,10 @@ def parse_xml_coll(xml_path):
             return title, synopsis, language, wl, loc, region, country, continent, access, depositor, contact
                         
     except Exception as e:
-        print(f"Error parsing XML: {e}")
+        logger.critical(e)
 
-def populate_models_from_directory(collection_path):
+
+def populate_models_from_directory(collection_path, owner, access_rights):
     '''
     Finds all collections in a given path and creates an instance for each
     of those collections
@@ -133,15 +182,17 @@ def populate_models_from_directory(collection_path):
             continent=continent,
             access=access,
             depositor=depositor,
-            contact_person=contact
+            contact_person=contact,
+            permissions=access_rights,
+            owner=owner
         )
         
         collection.save()
         
-        print(f"Collection: {title} successfully created")
+        logger.info(f"Collection: {title} successfully created")
     
         # Recursively process Session and People directories
-        process_sessions(collection, os.path.join(collection_dir, 'Sessions'))
+        process_sessions(collection, os.path.join(collection_dir, 'Sessions'), owner, access_rights)
         process_people(os.path.join(collection_dir, 'People'))
         
 
@@ -164,7 +215,7 @@ def parse_xml_person(xml_path):
         return name, nickname
     
     except Exception as e:
-        print(f"Error parsing XML: {e}")
+        logger.critical(e)
        
 
 def parse_xml_session(xml_path):
@@ -253,7 +304,7 @@ def parse_xml_session(xml_path):
         return title, langlist, wllist, genre, subgenre, synopsis, date, speakerlist, participantlist
     
     except Exception as e:
-            print(f"Error parsing XML: {e}")
+            logger.critical(e)
  
 def process_people(people_dir):
     '''
@@ -275,9 +326,11 @@ def process_people(people_dir):
                     p.tier = nickname
                 
                     p.save()
+                    
+                    logger.info(f"Person {name} successfully created")
             
 
-def process_sessions(collection, session_dir):
+def process_sessions(collection, session_dir, owner, access_rights):
     '''
     Finds all sessions in a given path and creates an instance for each
     of those sessions
@@ -299,11 +352,16 @@ def process_sessions(collection, session_dir):
                 genre=genre,
                 subgenre=subgenre,
                 synopsis=synopsis,
+                permissions=access_rights,
+                owner=owner
             )
             if date != '':
                 session.date = date
                 
             session.save()
+            
+            logger.info(f"Session {session_name} successfully created")
+
             
             if len(langlist) > 0:
                 for l in langlist:
@@ -322,9 +380,9 @@ def process_sessions(collection, session_dir):
                     session.participants.add(l)
                     
             # Recursively process File objects
-            process_files(session, session_path)
+            process_files(session, session_path, owner, access_rights)
 
-def process_files(session, session_path):
+def process_files(session, session_path, owner, access_rights):
     '''
     Finds all files in a given path and creates an instance for each
     of those files
@@ -346,20 +404,11 @@ def process_files(session, session_path):
                 file_type = file_extension.lstrip('.').lower()  # Remove the dot and make it lowercase
 
                 # Upload the file content to the database
-                with open(file_path, 'rb') as file_content:
-                    file_obj = File(
-                        name=file_base_name,
-                        type=file_type,
-                        session=session,
-                    )
-                    file_obj.content.save(file_name, DjangoFile(file_content))
-
-                    # Save the file object
-                    file_obj.save()
+                file = load_file(file_path, file_base_name, file_type, session, owner, access_rights)
                     
                 if file_name.endswith('.eaf'):
                     # Extract tiers
-                    process_elan_text(file_obj, file_path)
+                    process_elan_text(file, file_path, owner, access_rights)
 
 def store_tier_values(tier, vid, file, postp, part):
     '''
@@ -382,11 +431,12 @@ def store_tier_values(tier, vid, file, postp, part):
             annotation=annotationText,
             transcriptELANfile=file,
             textType=textType,
-            video=vid,
-            speaker=speaker
+            speaker=speaker,
+            video = vid
         )
         
         annotation.save()
+        
                     
         #see if there is any postprocess needed
         for i in range(0,len(postp)):
@@ -423,8 +473,31 @@ def get_postprocess_tier(tier, file):
     
     return postprocess
 
+
+def load_file(file_path, name, type, session, owner, access_rights):
+    try:
+        with open(file_path, 'rb') as file_content:
+            file = File(
+            name=name,
+            type=type,
+            session=session,
+            owner=owner,
+            permissions=access_rights
+            )
+            file.content.save(name, DjangoFile(file_content))
+
+            # Save the file object
+            file.save()
+            
+            logger.info(f"File {name} successfully created")
+
+            
+            return file
+        
+    except Exception as e:
+        logger.critical(e)
                     
-def process_elan_text(file, file_path):
+def process_elan_text(file, file_path, owner, access_rights):
     '''
     Populates the model TranscriptElan based on information of a given
     .eaf file
@@ -434,22 +507,16 @@ def process_elan_text(file, file_path):
     
     #retrieve name of linked multimedia
     vid_path = eaf.media_path()
-    vid_name, vid_type = os.path.splitext(os.path.basename(vid_path))
+    vid_basename = os.path.basename(vid_path)
+    vid_name, vid_type = os.path.splitext(vid_basename)
     vid_type = vid_type.lstrip('.').lower()
     
     # If not yet uploaded, upload the file content to the database
-    with open(vid_path, 'rb') as file_content:
-        vid = File(
-        name=vid_name,
-        type=vid_type,
-        session=file.session,
-        )
-        vid.content.save(vid_name, DjangoFile(file_content))
-
-        # Save the file object
-        vid.save()
-                    
+    vid = load_file(vid_path, vid_name, vid_type, file.session, owner, access_rights)
     
+    if vid == None:
+        logger.error("vid file not found")
+        
     for tier in eaf:
         if tier.ID == "Postprocess":
             pp_anns = get_postprocess_tier(tier, file)
@@ -461,25 +528,37 @@ def process_elan_text(file, file_path):
 
 # Usage
 
-collection_path = r'c:\Users\Lorena\Desktop\COLLECTIONS'
+#collection_path = r'c:\Users\Lorena\Desktop\COLLECTIONS'
 
-try:
-    with transaction.atomic():
-        # Call the function to delete all data
-        delete_all_data()
-        populate_models_from_directory(collection_path)
-
-        for tier_reference in tier_references:
-            # Check if the file with the name exists in the new collections or files
-            if Collection.objects.filter(name=tier_reference.collection.name).exists() \
-                or File.objects.filter(name=tier_reference.transcriptELANfile.name).exists():
-                TierReference.objects.create(**tier_reference.__dict__)
-                print("TierReference successfully recreated")
+def trigger_populate(instance):
+    try:
+        with transaction.atomic():
+            # Get collection path
+            collection_path = instance.path
+            collection_owner = instance.data_owner
+            access_rights = instance.access_rights
+            
+            logger.info(collection_path)
                 
-    #compute_search_vector:
-    searchv = SearchVector('annotation')
-    TranscriptELAN.objects.update(search_vector=searchv)
+            # If overwrite data, call the function to delete all data
+            if instance.overwrite:
+                tier_references = store_tier_references()
+                delete_all_data()
 
-except Exception as e:
-    print(f"Error during data population: {e}")
+                populate_models_from_directory(collection_path, collection_owner, access_rights)
+                
+                #If there are tier_references to repopulate, run command
+                if len(tier_references) > 0:
+                    repopulate_tier_references(tier_references)
 
+            else:
+                populate_models_from_directory(collection_path, collection_owner, access_rights)
+
+            #compute search vector:
+            searchv = SearchVector('annotation')
+            TranscriptELAN.objects.update(search_vector=searchv)
+            
+
+    except Exception as e:
+        logger.critical(e)
+        

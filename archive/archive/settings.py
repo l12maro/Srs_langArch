@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,7 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['django-env.eba-epzmf4mm.us-west-2.elasticbeanstalk.com',
                  '*']
-
 
 # Application definition
 
@@ -112,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "browse.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
