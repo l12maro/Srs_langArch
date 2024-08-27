@@ -52,7 +52,7 @@ class User(AbstractUser):
 
 class DataSource(models.Model):
     """
-    This class allows the superuser and staff to specify a local folder
+    This class allows superuser and staff to specify a local folder
     from which to upload the data.
     Properties:
     path: path to the local folder
