@@ -95,7 +95,7 @@ DATABASES = {
         'USER': "tsuuhtnj_admin",
         'PASSWORD': "treaty7-sarcee",
         'HOST': "localhost",
-        'PORT': "3306",
+        'PORT': "5432",
     }
 }
 
