@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'archive.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tsuuhtnj_archive',
+        'NAME': 'tsuuhtnj_langarch',
         'USER': "tsuuhtnj_admin",
         'PASSWORD': "treaty7-sarcee",
         'HOST': "localhost",
