@@ -1,0 +1,23 @@
+{% extends "browse/base.html" %}
+{% load qr_code %}
+{% block title %}{{ object_list.0.speaker.name }}{% endblock %}
+{%block content%}
+<div class="content" id="wrappedcontainer">
+	<h3>Sessions</h3>
+		<div class="grid-container">
+		{% for obj in object_list %}
+			<div class="grid-item">
+			<h4><a href="{% url 'browse:session' collection=obj.collection session=obj.session %}"> {{ obj.session }} </a></h4>
+			</div>
+			{% endfor %}
+		</div>
+</div>
+	{% endblock %}
+
+	<script>
+		function toggleAdvancedOptions() {
+		  var advancedOptions = document.getElementById('advanced-options');
+		  advancedOptions.style.display = (advancedOptions.style.display === 'none') ? 'block' : 'none';
+		}
+	</script>
+</html>

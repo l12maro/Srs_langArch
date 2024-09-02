@@ -1,0 +1,60 @@
+{% load static %}
+{% load browse_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tsuut'ina Language Resources</title>
+	
+	<link rel="stylesheet" href="{% static 'browse/style.css' %}">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+
+</head>
+<body>
+    <div class="content">
+        <div id="loaded_av">
+            <h2 class="result">Audios</h2>
+            <div class="border-solid" id="av0">
+            <div class="translation-unit-header">
+                <h3><a href="{% url 'browse:session' collection=obj.transcriptELANfile.session.collection session=obj.transcriptELANfile.session %}">
+                    {{ obj.transcriptELANfile.session.title}}</a></h3>
+                <h4>(from collection <a href="{% url 'browse:collection' collection=obj.transcriptELANfile.session.collection %}">
+                    {{ obj.transcriptELANfile.session.collection.title}}</a>)</h4>
+                <h4>spoken by <a href="{% url 'search:search_results' %}?s={{obj.speaker.tier}}">{{ obj.speaker.name }}</a></h4>
+            </div>
+            <div class="translation-unit">
+                {% for key, value in obj.textgloss.items %}
+                    <dl class="word">
+                    <dd><a href="https://gunaha.altlab.dev/search/?q={{key}}" target="_blank">{{ key }}</a></dd>
+                    {% if value %}
+                        <dt>{{ value }}</dt>
+                        {% endif %}
+                    </dl>
+                {% endfor %}
+            </div>
+            {% if obj.translation %}
+            <p>
+                "{{obj.translation}}"
+            <p>
+            {% endif %}
+            <p><a href="{% url 'browse:detail' collection=obj.transcriptELANfile.session.collection session=obj.transcriptELANfile.session fileid=obj.transcriptELANfile.id %}">See full text</a></p>
+            <div class="av-item">
+                {% if obj.audio %}
+                    <audio controls="" preload="none">
+                    <source src="{{ obj.audio }}" type="audio/mp3">
+                    Your browser does not support the audio element.</audio>
+                {% else %}
+                    <p>No audio available for this transcript.</p>
+                {% endif %}
+                </div>
+                <a href="{{ obj.audio }}" download updated=""><span class="prefix"></span>Download audio</a>
+            </div>
+            {% endfor %}
+            </div>
+    </div>
+</body>

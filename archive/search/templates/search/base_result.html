@@ -1,0 +1,53 @@
+{% extends "search/base.html" %}
+{% load qr_code %}
+{% block menu %}{% endblock %}
+{% block title %}Results{% endblock %}
+{% block sidebar %}{% endblock %}
+{%block content%}
+<!-- Search results -->
+    <div class="content">
+			{%if result %}
+			<div class="border-solid" id="av0">
+				<div class="translation-unit-header">
+					{% url 'search:result' resultid=obj.id as result_url %}
+					<img src="{% qr_url_from_text result_url size=3 version=None image_format='png' %}" alt="QR_Code" align="right">
+					<h3> From session 
+					<a href="{% url 'browse:session' collection=result.transcriptELANfile.session.collection session=result.transcriptELANfile.session %}">
+						{{ result.transcriptELANfile.session.title}}</a></h3>
+					<h4>(from collection <a href="{% url 'browse:collection' collection=result.transcriptELANfile.session.collection %}">
+						{{ result.transcriptELANfile.session.collection.title}}</a>)</h4>
+					<h4>spoken by <a href="{% url 'search:search_results' %}?s={{result.speaker.tier}}">{{ result.speaker.name }}</a></h4>
+				</div>
+				<div class="translation-unit">
+					{% for key, value in result.textgloss.items %}
+    					<dl class="word">
+							<dd><a href="https://gunaha.altlab.app/?q={{key}}&lang=srs" target="_blank">{{ key }}</a></dd>
+							{% if value %}
+            				<dt>{{ value }}</dt>
+       					 {% endif %}
+    					</dl>
+					{% endfor %}
+				</div>
+				{% if result.translation %}
+				<p>
+					"{{result.translation}}"
+				<p>
+				{% endif %}
+				<p><a href="{% url 'browse:detail' collection=result.transcriptELANfile.session.collection session=result.transcriptELANfile.session fileid=result.transcriptELANfile.id %}">See full text</a></p>
+				<div class="av-item">
+					{% if result.audio %}
+						<audio controls="" preload="metadata">
+						<source src="{{ result.audio }}" type="audio/mp3">
+						Your browser does not support the audio element.</audio>
+					{% else %}
+						<p>No audio available for this transcript.</p>
+					{% endif %}
+					</div>
+					<a href="{{ result.audio }}" download updated=""><span class="prefix"></span>Download audio</a>
+				</div>
+			</div>
+			{% else %}
+			<h3> No result </h3>
+			{% endif %}
+    	</div>
+{% endblock %}
