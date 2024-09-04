@@ -98,29 +98,16 @@ def get_tiers(file_name, **kwargs):
             }
         
     # Check if the file name is listed in TierReference
-    tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name)
+    for key in tiers:
+        tier_reference_entry = TierReference.objects.filter(transcriptELANfile__name=file_name).filter(destTierType=key).first()
 
-    if tier_reference_entry.first():
-        for key in tiers:
-            tier_reference_entry.filter(destTierType=key)
-            if tier_reference_entry.first():
-                logger.info(tier_reference_entry)
-                #if tier_reference_entry.sourceTierType != None:
-                #    tiers[key] = tier_reference_entry.sourceTierType
-            else:
-                search = get_from_collection(tier_reference_entry.first().collection, key)
-                if search:
-                    tiers[key] = search.sourceTierType
-
-
-    # If there is no listing in TierReference, we check the collection
-    else:
-        file = File.objects.filter(name=file_name).first()
-        for key in tiers:
+        if tier_reference_entry:
+            tiers[key] = tier_reference_entry.sourceTierType
+        else:
+            file = File.objects.filter(name=file_name).first()
             search = get_from_collection(file.session.collection, key)
             if search:
                 tiers[key] = search.sourceTierType
-            
             
     return tiers
     

@@ -139,14 +139,14 @@ def parse_xml_coll(xml_path):
                 depositor, created = Person.objects.get_or_create(name=depositor.text, role="depositor")
                     
             else: 
-                depositor, created = Person.objects.get_or_create(name="Unspecified")
+                depositor, created = Person.objects.get_or_create(name="Unspecified", role="depositor")
                     
             contact = root.find('ContactPerson')
             if contact is not None:
                 contact, created = Person.objects.get_or_create(name=contact.text, role="contact")
                     
             else: 
-                contact, created = Person.objects.get_or_create(name="Unspecified")
+                contact, created = Person.objects.get_or_create(name="Unspecified", role="contact")
                     
             return title, synopsis, language, wl, loc, region, country, continent, access, depositor, contact
                         
@@ -194,6 +194,7 @@ def populate_models_from_directory(collection_path, owner, access_rights):
         # Recursively process Session and People directories
         process_sessions(collection, os.path.join(collection_dir, 'Sessions'), owner, access_rights)
         process_people(os.path.join(collection_dir, 'People'))
+
         
 
 def parse_xml_person(xml_path):
@@ -391,7 +392,6 @@ def process_files(session, session_path, owner, access_rights):
     
     for file_name in os.listdir(session_path):
         file_path = os.path.join(session_path, file_name)
-        
         if os.path.isfile(file_path):
 
             # Check if the file is not a session or meta file
@@ -405,7 +405,7 @@ def process_files(session, session_path, owner, access_rights):
 
                 # Upload the file content to the database
                 file = load_file(file_path, file_base_name, file_type, session, owner, access_rights)
-                    
+                
                 if file_name.endswith('.eaf'):
                     # Extract tiers
                     process_elan_text(file, file_path, owner, access_rights)
@@ -484,7 +484,7 @@ def load_file(file_path, name, type, session, owner, access_rights):
             owner=owner,
             permissions=access_rights
             )
-            file.content.save(name, DjangoFile(file_content))
+            file.content.save(name + '.' +  type, DjangoFile(file_content))
 
             # Save the file object
             file.save()
@@ -518,7 +518,7 @@ def process_elan_text(file, file_path, owner, access_rights):
         logger.error("vid file not found")
         
     for tier in eaf:
-        if tier.ID == "Postprocess":
+        if tier.ID.lower() == "postprocess":
             pp_anns = get_postprocess_tier(tier, file)
     
     for tier in eaf:

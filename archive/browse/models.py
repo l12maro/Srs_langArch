@@ -224,14 +224,9 @@ class TierReference(models.Model):
         ('translation', 'translation'),
     ]    
     
-    #Limit choices from sourceTierType to the tierTypes in TranscriptELAN
-    TRANSCRIPT_ELAN_CHOICES = [
-        (tier_type, tier_type) for tier_type in TranscriptELAN.objects.values_list('textType', flat=True).distinct()
-    ]
-    
     transcriptELANfile = models.ForeignKey(File, related_name="file_ref", on_delete=models.DO_NOTHING, null=True, blank=True, limit_choices_to={"type": "eaf"})
     collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, null=True, blank=True)
-    sourceTierType = models.CharField(max_length=255, null=True, blank=True, choices=TRANSCRIPT_ELAN_CHOICES)
+    sourceTierType = models.CharField(max_length=255, null=True, blank=True)
     destTierType = models.CharField(max_length=255, null=True, blank=True, choices=DEST_TIER_TYPE_CHOICES)
 
 

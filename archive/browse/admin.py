@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import Session, Collection, File, Person, Genre, TierReference, Postprocess, TranscriptELAN, Language, DataSource, User
+from .forms import TierReferenceForm
 
 class CustomUserAdmin(UserAdmin):
     pass
@@ -43,6 +44,7 @@ class GenreAdmin(admin.ModelAdmin):
 admin.site.register(Genre, GenreAdmin)
     
 class TierReferenceAdmin(admin.ModelAdmin):
+    form = TierReferenceForm
     list_display = ("transcriptELANfile", "collection", "sourceTierType", "destTierType")
 
 admin.site.register(TierReference, TierReferenceAdmin)
