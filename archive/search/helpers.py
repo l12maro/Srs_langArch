@@ -172,7 +172,7 @@ def extract_audio_fragment(audio_path, temp_dir, start_time, end_time):
     except subprocess.CalledProcessError as e:
         # Handle errors if ffmpeg command fails
         logger.error(f"Error extracting audio fragment: {e}")
-        return None
+        return temp_file.name
 
     finally:
         # Close and delete the temporary file

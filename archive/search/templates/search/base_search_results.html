@@ -100,7 +100,7 @@
 				<p><a href="{% url 'browse:detail' collection=obj.transcriptELANfile.session.collection session=obj.transcriptELANfile.session fileid=obj.transcriptELANfile.id %}">See full text</a></p>
 				<div class="av-item">
 					{% if obj.audio %}
-						<audio controls="" preload="metadata">
+						<audio controls="" preload="none">
 						<source src="{{ obj.audio }}" type="audio/mp3">
 						Your browser does not support the audio element.</audio>
 					{% else %}
